@@ -24,8 +24,6 @@ class port_manager():
 
     #list and open first port
     def open_port(self):
-        first=False
-        allow_next =False
         allow_writing = False
         ports = list(serial.tools.list_ports.comports())
         print("ports: ", ports, "\n")
@@ -37,7 +35,7 @@ class port_manager():
         i =0
         #non blocking read
         while (True):
-            print(i)
+            #print(i)
             i+=1
             #probe to turtle if setup until acknowledged
             if(self.setup and not allow_writing):
@@ -62,7 +60,6 @@ class port_manager():
                     print("outgoing: ", out)
                     print(self.port.write(out))
                     self.setup=True
-                    first = True
                     in_str = ""
                     
                 if "=Hello ACK" in in_str:

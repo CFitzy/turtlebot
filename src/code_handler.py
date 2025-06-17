@@ -19,7 +19,8 @@ class Code_Handler():
         self.port_manager = port_manager
         
     def handle_code(self, code_input, turtle, text_output):
-        text_output.configure(text="Compiling code")
+        if len(code_input) >1:
+            text_output.configure(text="Compiling code")
         try:
             #test if code compiles
             turtle.test_code(code_input, text_output)
@@ -62,10 +63,8 @@ class Code_Handler():
                 text_output.configure(text=line)
                 turtle.run_code(line, text_output)
                 if not turtlebot_lines[current_line][0] == "":
-                    print(turtlebot_lines[current_line])
-                    print("T" in turtlebot_lines[current_line])
+                    #If a turn is done, handle the three commands (pen up, turn, pen down)
                     if "T" in turtlebot_lines[current_line][1]:
-                        print("T ", len(turtlebot_lines[current_line]))
                         for mini_line in turtlebot_lines[current_line]:
                             self.port_manager.send_command(mini_line)
                     else:

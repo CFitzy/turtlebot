@@ -49,7 +49,7 @@ class Top_Menu():
         down_frame.pack()
         down_label = ctk.CTkLabel(down_frame, text="Adjust pen height until it is just on the paper")
         down_label.pack(padx=5, pady=5)
-        down_slider = ctk.CTkSlider(down_frame, from_=0, to=1, command=self.up_slider_event, number_of_steps=20)
+        down_slider = ctk.CTkSlider(down_frame, from_=0, to=1, command=self.down_slider_event, number_of_steps=20)
         down_slider.pack(pady=5)
         down_slider.set(self.down)
         self.down_slider_event(self.down)
@@ -79,7 +79,14 @@ class Top_Menu():
     def up_slider_event(self, value):
         print(value)
         #value=value/ranger
-        string_value = str(round(value, 2))
+        value = round(value, 2)
+        string_value = str(value)
+        if value<=0.8:
+            setup_value = round(value+0.2, 2)
+            self.port_manager.send_command("U"+str(setup_value))
+        else:                                                   #very unlikely to occur as would mean ground is taller than wheels
+            setup_value = round(value-0.2, 2)
+            self.port_manager.send_command("U"+str(setup_value))
         self.port_manager.send_command("U"+string_value)
         #self.port_manager.send_command("o")
         self.up=value
@@ -87,7 +94,14 @@ class Top_Menu():
     def down_slider_event(self, value):
         print(value)
         #value=value/ranger
-        string_value = str(round(value, 2))
+        value = round(value, 2)
+        string_value = str(value)
+        if value<=0.8:
+            setup_value = round(value+0.2, 2)
+            self.port_manager.send_command("D"+str(setup_value))
+        else:
+            setup_value = round(value-0.2, 2)
+            self.port_manager.send_command("D"+str(setup_value))
         self.port_manager.send_command("D"+string_value)
         #self.port_manager.send_command("o")
         self.down=value
