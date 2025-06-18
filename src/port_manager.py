@@ -14,23 +14,30 @@ import threading
 class port_manager():
     def __init__(self):
         self.setup =False
+        self.usb_connection = False
+        self.allow_writing = False
         self.up =0.5
         self.down = 0.3
-        read = threading.Thread(target= self.open_port)
-        read.start()
+        self.read = threading.Thread(target= self.open_port)
+        self.read.start()
         
+    def change_port(self):
+        self.allow_writing = False
+        self.port.close()
         
-
-
-    #list and open first port
-    def open_port(self):
-        allow_writing = False
         ports = list(serial.tools.list_ports.comports())
         print("ports: ", ports, "\n")
 
-        print("open port ", ports[0].name)       #For debugging
+        if len(ports)>0:
+            print("open port ", ports[0].name)       #For debugging
+            self.port = serial.Serial(ports[0].name, baudrate=115200)
+            self.setup =False
+            self.usb_connection =True
+            return True
+        else:
+            self.usb_connection =False
         
-        self.port = serial.Serial(ports[0].name, baudrate=115200)
+    def read_port(self):
         in_str =""
         i =0
         #non blocking read
@@ -38,13 +45,11 @@ class port_manager():
             #print(i)
             i+=1
             #probe to turtle if setup until acknowledged
-            if(self.setup and not allow_writing):
+            if(self.setup and not self.allow_writing):
                 #first = False
                 print("Hello")
                 self.port.write("=Hello\n".encode('utf-8'))
                 
-            #if (allow_writing):
-                #self.allow_write()
                 
             # Check if incoming bytes are waiting to be read from the serial input buffer.
             if (self.port.in_waiting > 0):
@@ -60,28 +65,34 @@ class port_manager():
                     print("outgoing: ", out)
                     print(self.port.write(out))
                     self.setup=True
+                    self.allow_writing = False
                     in_str = ""
                     
                 if "=Hello ACK" in in_str:
-                    allow_writing = True
+                    self.allow_writing = True
                     
-                    
-                    
-    
-        # Optional, but recommended: sleep 10 ms (0.01 sec) once per loop to let 
-        # other threads on your PC run during this time. 
             time.sleep(1)
-            
-    #def allow_write(self):
-        #while (True):
-            #self.send_command(input())
-        
+
+    #list and open first port
+    def open_port(self):
+        ports = list(serial.tools.list_ports.comports())
+        print("ports: ", ports, "\n")
+
+        if len(ports)>0:
+            print("open port ", ports[0].name)       #For debugging
+            self.port = serial.Serial(ports[0].name, baudrate=115200)
+            self.usb_connection =True
+            self.setup = False
+            self.read_port()
+                    
+                     
     #send commmands to turtlebot
     def send_command(self, command):
-        command=command+"\n"
-        out = command.encode("utf-8")
-        print("outgoing: ", out)
-        self.port.write(out)
+        if self.allow_writing:
+            command=command+"\n"
+            out = command.encode("utf-8")
+            print("outgoing: ", out)
+            self.port.write(out)
         
 
 

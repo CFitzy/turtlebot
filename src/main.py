@@ -11,6 +11,7 @@ import code_input
 import top_menu
 import code_handler
 import port_manager
+import connection_state
 
 class Main():
     def __init__(self):
@@ -32,6 +33,17 @@ class Main():
         
         self.right_frame= ctk.CTkFrame(root, fg_color="transparent")
         self.right_frame.pack(side=ctk.LEFT, fill=ctk.Y)
+        
+        self.connection_frame = ctk.CTkFrame(self.right_frame, fg_color="transparent")
+        self.usb_connection = ctk.CTkLabel(self.connection_frame, text="USB connection", text_color="red")
+        self.usb_connection.pack(side=ctk.LEFT)
+        self.turtle_connection = ctk.CTkLabel(self.connection_frame, text="Turtle connection", text_color="red")
+        self.turtle_connection.pack(side=ctk.LEFT)
+        self.refresh_button = ctk.CTkButton(self.connection_frame, text="Refresh", command=self.port_manager.change_port, width=50)
+        self.refresh_button.pack(side=ctk.LEFT)
+        self.connection_frame.pack(side=ctk.TOP)
+        connection_state.Connection_State(self.port_manager, self.usb_connection, self.turtle_connection)
+        
         
         self.turtle = ts.Turtle_Simulation(self.right_frame)
         self.button_frame= ctk.CTkFrame(self.right_frame, fg_color="transparent")

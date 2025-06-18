@@ -44,7 +44,6 @@ class Top_Menu():
         self.down_view()
         
     def down_view(self):
-        self.destory_in_pop_up()
         down_frame = ctk.CTkFrame(self.pop_up)
         down_frame.pack()
         down_label = ctk.CTkLabel(down_frame, text="Adjust pen height until it is just on the paper")
@@ -53,43 +52,9 @@ class Top_Menu():
         down_slider.pack(pady=5)
         down_slider.set(self.down)
         self.down_slider_event(self.down)
-        next_button = ctk.CTkButton(down_frame, text="Next", command=self.up_view)
+        next_button = ctk.CTkButton(down_frame, text="Save", command=self.save)
         next_button.pack(pady=5)
         
-    def up_view(self):
-        self.destory_in_pop_up()
-        up_frame = ctk.CTkFrame(self.pop_up)
-        up_frame.pack()
-        up_label = ctk.CTkLabel(up_frame, text="Adjust pen height until it is just off the paper")
-        up_label.pack(padx=5, pady=5)
-        up_slider = ctk.CTkSlider(up_frame, from_=0, to=1, command=self.up_slider_event, number_of_steps=20)
-        up_slider.pack(pady=5)
-        up_slider.set(self.up)
-        self.up_slider_event(self.up)
-        ctk.CTkButton(up_frame, text="Back", command=self.up_view).pack()
-        next_button = ctk.CTkButton(up_frame, text="Save", command=self.save)
-        next_button.pack(pady=5)
-        
-    def destory_in_pop_up(self):
-        for child in self.pop_up.winfo_children():
-            child.destroy()
-        
-        
-        
-    def up_slider_event(self, value):
-        print(value)
-        #value=value/ranger
-        value = round(value, 2)
-        string_value = str(value)
-        if value<=0.8:
-            setup_value = round(value+0.2, 2)
-            self.port_manager.send_command("U"+str(setup_value))
-        else:                                                   #very unlikely to occur as would mean ground is taller than wheels
-            setup_value = round(value-0.2, 2)
-            self.port_manager.send_command("U"+str(setup_value))
-        self.port_manager.send_command("U"+string_value)
-        #self.port_manager.send_command("o")
-        self.up=value
 
     def down_slider_event(self, value):
         print(value)
@@ -99,15 +64,16 @@ class Top_Menu():
         if value<=0.8:
             setup_value = round(value+0.2, 2)
             self.port_manager.send_command("D"+str(setup_value))
-        else:
+            self.up= setup_value
+        else:                                                           #very unlikely to occur as would mean ground is taller than wheels
             setup_value = round(value-0.2, 2)
             self.port_manager.send_command("D"+str(setup_value))
+            self.up= 1
         self.port_manager.send_command("D"+string_value)
-        #self.port_manager.send_command("o")
+        self.port_manager.send_command("o")
         self.down=value
         
     def save(self):
-        self.port_manager.send_command("o")
         self.port_manager.up = self.up
         self.port_manager.down = self.down
         print("save here")
