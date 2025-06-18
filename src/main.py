@@ -39,7 +39,7 @@ class Main():
         self.usb_connection.pack(side=ctk.LEFT)
         self.turtle_connection = ctk.CTkLabel(self.connection_frame, text="Turtle connection", text_color="red")
         self.turtle_connection.pack(side=ctk.LEFT)
-        self.refresh_button = ctk.CTkButton(self.connection_frame, text="Refresh", command=self.port_manager.change_port, width=50)
+        self.refresh_button = ctk.CTkButton(self.connection_frame, text="Reset", command=self.port_manager.change_port, width=50)
         self.refresh_button.pack(side=ctk.LEFT)
         self.connection_frame.pack(side=ctk.TOP)
         connection_state.Connection_State(self.port_manager, self.usb_connection, self.turtle_connection)

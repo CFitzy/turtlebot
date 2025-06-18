@@ -18,12 +18,14 @@ class port_manager():
         self.allow_writing = False
         self.up =0.5
         self.down = 0.3
+        self.port = None
         self.read = threading.Thread(target= self.open_port)
         self.read.start()
         
     def change_port(self):
         self.allow_writing = False
-        self.port.close()
+        if not self.port == None:
+            self.port.close()
         
         ports = list(serial.tools.list_ports.comports())
         print("ports: ", ports, "\n")
@@ -51,25 +53,27 @@ class port_manager():
                 self.port.write("=Hello\n".encode('utf-8'))
                 
                 
-            # Check if incoming bytes are waiting to be read from the serial input buffer.
-            if (self.port.in_waiting > 0):
-                # read the bytes and convert from binary array to ASCII
-                data_str = self.port.read(self.port.in_waiting) 
-                #decode into ascii
-                in_str = str(data_str, 'utf-8')
-                print(in_str)
+            try:# Check if incoming bytes are waiting to be read from the serial input buffer.
+                if (self.port.in_waiting > 0):
+                    # read the bytes and convert from binary array to ASCII
+                    data_str = self.port.read(self.port.in_waiting) 
+                    #decode into ascii
+                    in_str = str(data_str, 'utf-8')
+                    print(in_str)
 
-                if "AT" == in_str:
-                    #encode into bytes (won't compile to send otherwise)
-                    out = ('OKPC').encode('utf-8')
-                    print("outgoing: ", out)
-                    print(self.port.write(out))
-                    self.setup=True
-                    self.allow_writing = False
-                    in_str = ""
+                    if "AT" == in_str:
+                        #encode into bytes (won't compile to send otherwise)
+                        out = ('OKPC').encode('utf-8')
+                        print("outgoing: ", out)
+                        print(self.port.write(out))
+                        self.setup=True
+                        self.allow_writing = False
+                        in_str = ""
                     
-                if "=Hello ACK" in in_str:
-                    self.allow_writing = True
+                    if "=Hello ACK" in in_str:
+                        self.allow_writing = True
+            except:
+                print("port disconnected")
                     
             time.sleep(1)
 

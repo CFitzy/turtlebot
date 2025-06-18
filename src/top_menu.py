@@ -76,5 +76,6 @@ class Top_Menu():
     def save(self):
         self.port_manager.up = self.up
         self.port_manager.down = self.down
+        self.port_manager.send_command("U"+str(self.up))
         print("save here")
         self.pop_up.destroy()
