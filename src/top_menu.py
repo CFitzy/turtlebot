@@ -7,32 +7,34 @@ Created on Thu Jun  5 15:04:28 2025
 import customtkinter as ctk
 import tkinter as tk
 
-ranger = 5
 
 class Top_Menu():
-    def __init__(self, root, clear_text, port_manager):
+    def __init__(self, root, port_manager):
         #has to be tkinter canvas as customtkinter works coordinates based but turtle needs len
-        self.top_bar_frame= ctk.CTkFrame(root)
+        self.top_bar_frame= ctk.CTkFrame(root, fg_color="#007D02", corner_radius=0) #10B135
         self.top_bar_frame.pack(side=ctk.TOP, fill=ctk.X)
         self.port_manager = port_manager
         self.up = 0.35
         self.down=0.3
         
         ctk.CTkButton(self.top_bar_frame, 
-                      text="Settings", 
-                      text_color="black", 
+                      text="File", 
+                      text_color="white", 
                       fg_color="transparent",
                       hover_color="#BBBBBB",
-                      command=self.set_pen_view
-                      ).pack(side=ctk.RIGHT)
+                      width=40,
+                      #command=
+                      ).pack(side=ctk.LEFT, pady=2)
         
         ctk.CTkButton(self.top_bar_frame, 
-                      text="Clear Program", 
-                      command=clear_text, 
-                      text_color="black", 
+                      text="Settings", 
+                      text_color="white", 
                       fg_color="transparent",
-                      hover_color="#BBBBBB"
-                      ).pack(side=ctk.RIGHT)
+                      hover_color="#BBBBBB",
+                      width=40,
+                      command=self.set_pen_view
+                      ).pack(side=ctk.LEFT, pady=2)
+        
         
     def set_pen_view(self):
         self.pop_up = ctk.CTkToplevel()

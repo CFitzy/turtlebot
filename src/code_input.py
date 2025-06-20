@@ -12,13 +12,24 @@ from tkinter import scrolledtext
 
 
 class Code_Input():
-    def __init__(self, root):
+    def __init__(self, root, clear_text):
         self.code_frame= ctk.CTkFrame(root, fg_color="transparent")
         self.code_frame.pack(side=ctk.LEFT, fill=ctk.Y)
-        ctk.CTkLabel(master=self.code_frame, text="Enter code:").pack(side=ctk.TOP)  
+        
+        ctk.CTkButton(self.code_frame, 
+                      text="Clear Program", 
+                      command=clear_text, 
+                      text_color="black", 
+                      fg_color="transparent",
+                      hover_color="#BBBBBB"
+                      ).pack(side=ctk.TOP)
+        
+        #ctk.CTkLabel(master=self.code_frame, text="Enter code:").pack(side=ctk.TOP)  
         # Text input (size by line not pixel)
-        self.textbox = scrolledtext.ScrolledText(master=self.code_frame, font=("Helivetica"), yscrollcommand=True)
+        self.textbox = scrolledtext.ScrolledText(master=self.code_frame, font=("Helivetica, 12"), yscrollcommand=True)
+        #self.textbox.insert(ctk.END, "turtle.up()\nturtle.forward(20)\nturtle.right(90)\nturtle.down()\nturtle.forward(20)\nturtle.up()")
         self.textbox.pack(side=ctk.TOP, pady=5, expand=True, fill=ctk.BOTH)      
+
         
         #checks every second
         cdg = ic.ColorDelegator()

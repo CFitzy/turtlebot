@@ -24,12 +24,15 @@ class Main():
         self.width, self.height=800,600
         root.geometry(str(self.width)+"x"+str(self.height))
         root.title("Turtlebot")
+        #set logo image
+        root.iconbitmap('./graphics/turtle_logo.ico')
+
         #Binding the resizing event
         root.bind("<Configure>", lambda event: self.update_window(root, event)) 
         
-        self.top_menu = top_menu.Top_Menu(root, self.clear_text, self.port_manager)
+        self.top_menu = top_menu.Top_Menu(root, self.port_manager)
          
-        self.code_input = code_input.Code_Input(root)
+        self.code_input = code_input.Code_Input(root, self.clear_text)
         
         self.right_frame= ctk.CTkFrame(root, fg_color="transparent")
         self.right_frame.pack(side=ctk.LEFT, fill=ctk.Y)
