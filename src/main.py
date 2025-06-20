@@ -51,9 +51,9 @@ class Main():
         self.turtle = ts.Turtle_Simulation(self.right_frame)
         self.button_frame= ctk.CTkFrame(self.right_frame, fg_color="transparent")
         self.button_frame.pack(side=ctk.TOP)
-        self.reset_button = ctk.CTkButton(self.button_frame, text="Reset Turtle", command=self.turtle.reset, width=50)
-        self.run_button = ctk.CTkButton(self.button_frame, text="Run", command=self.run_text, width=50)
-        self.stop_button = ctk.CTkButton(self.button_frame, text="Stop", command=self.stop, width=50, state="disabled")
+        self.reset_button = self.button_setup(self.button_frame, "Reset Turtle", self.turtle.reset, "normal")
+        self.run_button = self.button_setup(self.button_frame, "Run", self.run_text, "normal")
+        self.stop_button = self.button_setup(self.button_frame, "Stop", self.stop, "disabled")
         self.buttons_layout(True)
         
         
@@ -63,6 +63,9 @@ class Main():
         #start window
         root.mainloop()
         
+        
+    def button_setup(self, frame, text, command, state):
+        return ctk.CTkButton(frame, text=text, command=command, width=50, fg_color="#00b335", text_color="white", hover_color="#007300", state=state)
 
         
     #update window to meet current size requirements (for user experience the window is recommeded not to be smaller than (600,450))
