@@ -35,8 +35,15 @@ class Top_Menu():
                       command=self.set_pen_view
                       ).pack(side=ctk.LEFT, pady=2)
         
-        reset_image = ctk.CTkImage(light_image=Image.open("./graphics/reset.png"), size=(20, 20))
-        self.refresh_button = ctk.CTkButton(connection_frame, image =reset_image, text="", fg_color="transparent", command=self.port_manager.change_port, width=20)
+        self.refresh_button = ctk.CTkButton(
+            connection_frame, 
+            image =ctk.CTkImage(light_image=Image.open("./graphics/reset.png"), size=(20, 20)), 
+            text="", 
+            fg_color="transparent", 
+            hover_color="#007300", 
+            command=self.port_manager.change_port, 
+            width=20
+            )
         self.refresh_button.pack(side=ctk.LEFT, padx=3)
         connection_frame.pack(side=ctk.RIGHT)
         

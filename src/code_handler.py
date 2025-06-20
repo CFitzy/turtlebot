@@ -43,7 +43,8 @@ class Code_Handler():
                 for i in range (for_loop):
                     tabs+="\t"
                 #if line not just spaces
-                if not line.isspace():
+                if not line.isspace() and not line=="":
+                    print("b",line)
                     if line.strip()[0]=="t" or line.strip()[0]=="p":
                         line_processed = line.replace("\"", "\\\"")
                         preprocessing_lines.append(tabs+"processed_lines.append(\""+line_processed.strip()+"\")") 

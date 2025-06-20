@@ -42,13 +42,12 @@ class Main():
         self.right_frame= ctk.CTkFrame(root, fg_color="transparent")
         self.right_frame.pack(side=ctk.LEFT, fill=ctk.Y)
         
-        
-        
+
         
         self.turtle = ts.Turtle_Simulation(self.right_frame)
         self.button_frame= ctk.CTkFrame(self.right_frame, fg_color="transparent")
         self.button_frame.pack(side=ctk.TOP)
-        self.reset_button = self.button_setup(self.button_frame, "Reset Turtle", self.turtle.reset, "normal")
+        
         self.run_button = self.button_setup(self.button_frame, "Run", self.run_text, "normal")
         self.stop_button = self.button_setup(self.button_frame, "Stop", self.stop, "disabled")
         self.buttons_layout(True)
@@ -70,6 +69,7 @@ class Main():
     def update_window(self, root, event=None):
         self.code_input.resize(root.winfo_width()/2, root.winfo_height())
         self.turtle.resize(root.winfo_width()/2, root.winfo_height()/2)
+        self.text_output.configure(width=root.winfo_width()/2, height=root.winfo_height()/2.5)
             
         if root.winfo_width()<670:
             self.buttons_layout(horizontal=False)
@@ -80,11 +80,11 @@ class Main():
         
     def buttons_layout(self, horizontal):
         if horizontal:
-            self.reset_button.pack(side=ctk.LEFT, padx=4)
+            #self.reset_button.pack(side=ctk.LEFT, padx=4)
             self.run_button.pack(side=ctk.LEFT, padx=4)
             self.stop_button.pack(side=ctk.BOTTOM, padx=4)
         else:
-            self.reset_button.pack(side=ctk.TOP, pady=4)
+            #self.reset_button.pack(side=ctk.TOP, pady=4)
             self.run_button.pack(side=ctk.TOP, pady=4)
             self.stop_button.pack(side=ctk.TOP, pady=4)
 
@@ -101,7 +101,7 @@ class Main():
         #disable to stop spamming of run button
         self.run_button.configure(state="disabled", text="Running")
         #disable to stop resetting mid program
-        self.reset_button.configure(state="disabled")
+        #self.reset_button.configure(state="disabled")
         #enable stop button
         self.stop_button.configure(state="normal")
         
@@ -110,7 +110,7 @@ class Main():
         #reenable run button
         self.run_button.configure(state="normal", text="Run")
         #reenable reset button
-        self.reset_button.configure(state="normal")
+        #self.reset_button.configure(state="normal")
         #disable stop button
         self.stop_button.configure(state="disabled")
         

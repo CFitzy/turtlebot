@@ -16,8 +16,18 @@ class Turtle_Simulation():
         screen = turtle.TurtleScreen(self.canvas)
         self.terry = turtle.RawTurtle(screen, shape="turtle")
         self.paused = False
-        self.pause_pos = self.terry.pos()
-        self.pause_angle = self.terry.tiltangle()
+        
+        self.reset_button = ctk.CTkButton(root, 
+                                          text="Reset", 
+                                          command=self.reset, 
+                                          state="normal", 
+                                          width=20,
+                                          fg_color="#DDDDDD",
+                                          bg_color="white",
+                                          text_color="black",
+                                          hover_color="#BBBBBB"
+                                          )
+        self.reset_button.place(relx=0.99, y=2, x=0, anchor="ne")
         
 
 
