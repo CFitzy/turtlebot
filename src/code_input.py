@@ -16,19 +16,22 @@ class Code_Input():
         self.code_frame= ctk.CTkFrame(root, fg_color="transparent")
         self.code_frame.pack(side=ctk.LEFT, fill=ctk.Y)
         
-        ctk.CTkButton(self.code_frame, 
+        #ctk.CTkLabel(master=self.code_frame, text="Enter code:").pack(side=ctk.TOP)  
+        # Text input (size by line not pixel)
+        self.textbox = scrolledtext.ScrolledText(master=self.code_frame, font=("Helivetica, 14"), yscrollcommand=True)
+        #self.textbox.insert(ctk.END, "turtle.up()\nturtle.forward(20)\nturtle.right(90)\nturtle.down()\nturtle.forward(20)\nturtle.up()")
+        #self.textbox.pack(side=ctk.TOP, pady=5, expand=True, fill=ctk.BOTH)    
+        self.textbox.place(x=0, y=0, relwidth=1, relheight=1,)
+        
+        ctk.CTkButton(self.textbox, 
                       text="Clear Program", 
                       command=clear_text, 
                       text_color="black", 
-                      fg_color="transparent",
-                      hover_color="#BBBBBB"
-                      ).pack(side=ctk.TOP)
-        
-        #ctk.CTkLabel(master=self.code_frame, text="Enter code:").pack(side=ctk.TOP)  
-        # Text input (size by line not pixel)
-        self.textbox = scrolledtext.ScrolledText(master=self.code_frame, font=("Helivetica, 12"), yscrollcommand=True)
-        #self.textbox.insert(ctk.END, "turtle.up()\nturtle.forward(20)\nturtle.right(90)\nturtle.down()\nturtle.forward(20)\nturtle.up()")
-        self.textbox.pack(side=ctk.TOP, pady=5, expand=True, fill=ctk.BOTH)      
+                      fg_color="#DDDDDD",
+                      bg_color="white",
+                      hover_color="#BBBBBB",
+                      width=20
+                      ).place(relx=0.99, y=2, x=0, anchor="ne")
 
         
         #checks every second

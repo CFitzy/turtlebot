@@ -5,10 +5,11 @@ Created on Mon Jun 16 13:50:23 2025
 @author: cmf6
 """
 import re
+import customtkinter as ctk
 
 class Code_Handler():
     def __init__(self, port_manager):
-        self.code_dictionary={
+        self.code_dictionary = {
             "turtle.forward": "F",  #will need more
             "turtle.right": "T",
             "turtle.left": "T-",
@@ -20,11 +21,16 @@ class Code_Handler():
         
     def handle_code(self, code_input, turtle, text_output):
         if len(code_input) >1:
-            text_output.configure(text="Compiling code")
+            #text_output.configure(text="Compiling code")
+            text_output.configure(state="normal")
+            text_output.delete(1.0, ctk.END)
+            text_output.insert(ctk.END, text="Compiling code")
+            text_output.configure(state="disabled")
         try:
-            #test if code compiles
+            #test if the code compiles
             turtle.test_code(code_input, text_output)
-            if not text_output.cget("text") == "Compiling code":
+
+            if not text_output.get(1.0, 1.14) == "Compiling code":
                 return
             #split code into  lines
             code_lines = code_input.splitlines()
@@ -33,24 +39,24 @@ class Code_Handler():
             preprocessing_lines = []
             for line in code_lines:
                 tabs = ""
+                for_loop = line.count("\t")
                 for i in range (for_loop):
                     tabs+="\t"
-                if line.strip()[0]=="t" or line.strip()[0]=="p":
-                    line_processed = line.replace("\"", "\\\"")
-                    preprocessing_lines.append(tabs+"processed_lines.append(\""+line_processed.strip()+"\")") 
+                #if line not just spaces
+                if not line.isspace():
+                    if line.strip()[0]=="t" or line.strip()[0]=="p":
+                        line_processed = line.replace("\"", "\\\"")
+                        preprocessing_lines.append(tabs+"processed_lines.append(\""+line_processed.strip()+"\")") 
 
-                elif line.strip()[0]=="f":
-                    for_loop+=1
-                    preprocessing_lines.append(line)
-                else:
-                    preprocessing_lines.append(line)
-                if code_lines.index(line)!=len(code_lines)-1:
-                    if code_lines[code_lines.index(line)+1].count("\t") < for_loop:
-                        for_loop = code_lines[code_lines.index(line)+1][0].count("\t")
+                    elif line.strip()[0]=="f":
+                        for_loop+=1
+                        preprocessing_lines.append(line)
+                    else:
+                        preprocessing_lines.append(line)
             #join the list together with newlines between each
             res = '\n'.join(preprocessing_lines)
         
-            #run to get list of instructions
+            #run to get the list of instructions
             exec(res)
             
             turtlebot_lines = self.translate_to_bot(processed_lines)
@@ -60,7 +66,13 @@ class Code_Handler():
             for line in processed_lines:
                 if turtle.get_paused():
                     break
-                text_output.configure(text=line)
+                #display on output
+                text_output.configure(state="normal")
+                text_output.insert(ctk.END, text="\n"+line)
+                text_output.configure(state="disabled")
+                text_output.see(ctk.END)
+                
+                # Run code on the simulator
                 turtle.run_code(line, text_output)
                 if not turtlebot_lines[current_line][0] == "":
                     #If a turn is done, handle the three commands (pen up, turn, pen down)
@@ -70,12 +82,18 @@ class Code_Handler():
                     else:
                         self.port_manager.send_command(turtlebot_lines[current_line])
                 current_line+=1
+            # Lift pen and turn motors off at the                current_line+=1
             #lift pen and turn motors off at end
             self.port_manager.send_command("U"+str(self.port_manager.up))
             self.port_manager.send_command("o")
             if not turtle.get_paused():
-                text_output.configure(text="Completed Successfully")
-        except:
+                #display on output
+                text_output.configure(state="normal")
+                text_output.insert(ctk.END, text="\nCompleted Successfully")
+                text_output.configure(state="disabled")
+                text_output.see(ctk.END)
+        except Exception as e:
+            print("E:",e)
             pass
         
     def translate_to_bot(self, processed_lines):

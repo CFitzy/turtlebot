@@ -28,7 +28,11 @@ class Turtle_Simulation():
                 code_turtle = "turtle = self.terry \n"+code
                 exec(code_turtle)
             except Exception as e:      #compile can't catch name errors so instead catch line by line
-                output_label.configure(text=output_label.cget("text")+"\n"+str(e))
+                #display on output
+                output_label.configure(state="normal")
+                output_label.insert(ctk.END, text="\n"+str(e))
+                output_label.configure(state="disabled")
+                output_label.see(ctk.END)
                 self.stop_turtle()
             
             
@@ -42,10 +46,16 @@ class Turtle_Simulation():
             self.paused=False
         except SyntaxError as e:
             #-1 as automatically starts at 2
-            display = "Syntax Error at line "+str(e.lineno-1) +"\n "+str(e.msg)
-            output_label.configure(text=display)
+            display = "Syntax Error at line "+str(e.lineno-1) +str(e.msg)
+            output_label.configure(state="normal")
+            output_label.insert(ctk.END, text="\n"+display)
+            output_label.configure(state="disabled")
+            output_label.see(ctk.END)
         except Exception as e:
-            output_label.configure(text=e)
+            output_label.configure(state="normal")
+            output_label.insert(ctk.END, text="\n"+e)
+            output_label.configure(state="disabled")
+            output_label.see(ctk.END)
             
     def stop_turtle(self):
         self.paused =True
