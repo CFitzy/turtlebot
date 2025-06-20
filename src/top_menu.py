@@ -6,18 +6,18 @@ Created on Thu Jun  5 15:04:28 2025
 """
 import customtkinter as ctk
 import tkinter as tk
+from PIL import Image
 
 
 class Top_Menu():
-    def __init__(self, root, port_manager):
+    def __init__(self, root, port_manager, top_bar_frame, connection_frame):
         #has to be tkinter canvas as customtkinter works coordinates based but turtle needs len
-        self.top_bar_frame= ctk.CTkFrame(root, fg_color="#007D02", corner_radius=0) #10B135
-        self.top_bar_frame.pack(side=ctk.TOP, fill=ctk.X)
+        top_bar_frame.pack(side=ctk.TOP, fill=ctk.X)
         self.port_manager = port_manager
         self.up = 0.35
         self.down=0.3
         
-        ctk.CTkButton(self.top_bar_frame, 
+        ctk.CTkButton(top_bar_frame, 
                       text="File", 
                       text_color="white", 
                       fg_color="transparent",
@@ -26,7 +26,7 @@ class Top_Menu():
                       #command=
                       ).pack(side=ctk.LEFT, pady=2)
         
-        ctk.CTkButton(self.top_bar_frame, 
+        ctk.CTkButton(top_bar_frame, 
                       text="Settings", 
                       text_color="white", 
                       fg_color="transparent",
@@ -34,6 +34,11 @@ class Top_Menu():
                       width=40,
                       command=self.set_pen_view
                       ).pack(side=ctk.LEFT, pady=2)
+        
+        reset_image = ctk.CTkImage(light_image=Image.open("./graphics/reset.png"), size=(20, 20))
+        self.refresh_button = ctk.CTkButton(connection_frame, image =reset_image, text="", fg_color="transparent", command=self.port_manager.change_port, width=20)
+        self.refresh_button.pack(side=ctk.LEFT, padx=3)
+        connection_frame.pack(side=ctk.RIGHT)
         
         
     def set_pen_view(self):

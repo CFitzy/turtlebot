@@ -12,18 +12,21 @@ import time
 import threading
 
 class port_manager():
-    def __init__(self):
+    def __init__(self, connection_states):
+        self.connection_states = connection_states
         self.setup =False
         self.usb_connection = False
         self.allow_writing = False
         self.up =0.5
         self.down = 0.3
         self.port = None
+        self.connection_states.update_states(self.usb_connection, self.allow_writing)
         self.read = threading.Thread(target= self.open_port)
         self.read.start()
         
     def change_port(self):
         self.allow_writing = False
+        self.connection_states.update_states(self.usb_connection, self.allow_writing)
         if not self.port == None:
             self.port.close()
         
@@ -35,9 +38,11 @@ class port_manager():
             self.port = serial.Serial(ports[0].name, baudrate=115200)
             self.setup =False
             self.usb_connection =True
+            self.connection_states.update_states(self.usb_connection, self.allow_writing)
             return True
         else:
             self.usb_connection =False
+            self.connection_states.update_states(self.usb_connection, self.allow_writing)
         
     def read_port(self):
         in_str =""
@@ -72,6 +77,7 @@ class port_manager():
                     
                     if "=Hello ACK" in in_str:
                         self.allow_writing = True
+                        self.connection_states.update_states(self.usb_connection, self.allow_writing)
             except:
                 print("port disconnected")
                     
@@ -86,6 +92,7 @@ class port_manager():
             print("open port ", ports[0].name)       #For debugging
             self.port = serial.Serial(ports[0].name, baudrate=115200)
             self.usb_connection =True
+            self.connection_states.update_states(self.usb_connection, self.allow_writing)
             self.setup = False
             self.read_port()
                     

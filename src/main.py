@@ -13,10 +13,9 @@ import code_handler
 import port_manager
 import connection_state
 
+
 class Main():
     def __init__(self):
-        self.port_manager = port_manager.port_manager()
-        self.code_handler = code_handler.Code_Handler(self.port_manager)
         ctk.set_appearance_mode("light")
         # make window
         root = ctk.CTk()
@@ -30,22 +29,20 @@ class Main():
         #Binding the resizing event
         root.bind("<Configure>", lambda event: self.update_window(root, event)) 
         
-        self.top_menu = top_menu.Top_Menu(root, self.port_manager)
+        top_frame = ctk.CTkFrame(root, fg_color="#007D02", corner_radius=0)
+        connection_states = connection_state.Connection_Show()
+        connection_layout = connection_states.make_connection_layout(top_frame)
+        self.port_manager = port_manager.port_manager(connection_states)
+        self.code_handler = code_handler.Code_Handler(self.port_manager)
+        
+        self.top_menu = top_menu.Top_Menu(root, self.port_manager, top_frame,connection_layout)
          
         self.code_input = code_input.Code_Input(root, self.clear_text)
         
         self.right_frame= ctk.CTkFrame(root, fg_color="transparent")
         self.right_frame.pack(side=ctk.LEFT, fill=ctk.Y)
         
-        self.connection_frame = ctk.CTkFrame(self.right_frame, fg_color="transparent")
-        self.usb_connection = ctk.CTkLabel(self.connection_frame, text="USB connection", text_color="red")
-        self.usb_connection.pack(side=ctk.LEFT)
-        self.turtle_connection = ctk.CTkLabel(self.connection_frame, text="Turtle connection", text_color="red")
-        self.turtle_connection.pack(side=ctk.LEFT)
-        self.refresh_button = ctk.CTkButton(self.connection_frame, text="Reset", command=self.port_manager.change_port, width=50)
-        self.refresh_button.pack(side=ctk.LEFT)
-        self.connection_frame.pack(side=ctk.TOP)
-        connection_state.Connection_State(self.port_manager, self.usb_connection, self.turtle_connection)
+        
         
         
         self.turtle = ts.Turtle_Simulation(self.right_frame)
