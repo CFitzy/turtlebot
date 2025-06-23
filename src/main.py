@@ -26,8 +26,7 @@ class Main():
         #set logo image
         root.iconbitmap('./graphics/turtle_logo.ico')
 
-        #Binding the resizing event
-        root.bind("<Configure>", lambda event: self.update_window(root, event)) 
+        
         
         top_frame = ctk.CTkFrame(root, fg_color="#007D02", corner_radius=0)
         connection_states = connection_state.Connection_Show()
@@ -44,7 +43,7 @@ class Main():
         
 
         
-        self.turtle = ts.Turtle_Simulation(self.right_frame)
+        self.turtle_view = ts.Turtle_Simulation(self.right_frame)
         self.button_frame= ctk.CTkFrame(self.right_frame, fg_color="transparent")
         self.button_frame.pack(side=ctk.TOP)
         
@@ -57,6 +56,10 @@ class Main():
         #self.text_output = ctk.CTkLabel(master=self.right_frame, text="Error Output here", width=500, wraplength=200, height = 100)
         self.text_output = ctk.CTkTextbox(self.right_frame, width=300, corner_radius=0, state="disabled")
         self.text_output.pack(pady=5)  
+        
+        #Binding the resizing event
+        root.bind("<Configure>", lambda event: self.update_window(root, event)) 
+        
         #start window
         root.mainloop()
         
@@ -68,7 +71,7 @@ class Main():
     #update window to meet current size requirements (for user experience the window is recommeded not to be smaller than (600,450))
     def update_window(self, root, event=None):
         self.code_input.resize(root.winfo_width()/2, root.winfo_height())
-        self.turtle.resize(root.winfo_width()/2, root.winfo_height()/2)
+        self.turtle_view.resize(root.winfo_width()/2, root.winfo_height()/2)
         self.text_output.configure(width=root.winfo_width()/2, height=root.winfo_height()/2.5)
             
         if root.winfo_width()<670:
@@ -105,7 +108,7 @@ class Main():
         #enable stop button
         self.stop_button.configure(state="normal")
         
-        self.code_handler.handle_code(self.code_input.get_code(), self.turtle, self.text_output)
+        self.code_handler.handle_code(self.code_input.get_code(), self.turtle_view, self.text_output)
         
         #reenable run button
         self.run_button.configure(state="normal", text="Run")
@@ -118,7 +121,7 @@ class Main():
 
     def stop(self):
         #hide turtle
-        self.turtle.stop_turtle()
+        self.turtle_view.stop_turtle()
         #self.text_output.configure(text="Stopped")
         self.text_output.configure(state="normal")
         self.text_output.insert(ctk.END, text="\nStopped")

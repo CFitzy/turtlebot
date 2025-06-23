@@ -61,8 +61,8 @@ class Code_Handler():
             exec(res)
             
             turtlebot_lines = self.translate_to_bot(processed_lines)
-            self.port_manager.send_command("D"+str(self.port_manager.down))
             current_line = 0
+            turtle.run_code("turtle.up()", text_output)
             #run list on simulation
             for line in processed_lines:
                 if turtle.get_paused():
@@ -99,6 +99,7 @@ class Code_Handler():
         
     def translate_to_bot(self, processed_lines):
         bot_lines = []
+        pen_down=False
         for line in processed_lines:
             #split line by brackets
             split_line = re.split(r'[()\"]+', line)
@@ -106,13 +107,18 @@ class Code_Handler():
             if split_line[0] in self.code_dictionary:
                 bot_equivalent = self.code_dictionary.get(split_line[0])
                 if bot_equivalent == "U":
+                    pen_down=False
                     bot_lines.append(bot_equivalent+str(self.port_manager.up))
                 elif bot_equivalent == "D":
+                    pen_down=True
                     bot_lines.append(bot_equivalent+str(self.port_manager.down))
                 elif "T" in bot_equivalent:
                     new_line=bot_equivalent+split_line[1]
-                    lines = ["U"+str(self.port_manager.up), new_line, "D"+str(self.port_manager.down)]
-                    bot_lines.append(lines)
+                    if pen_down:
+                        lines = ["U"+str(self.port_manager.up), new_line, "D"+str(self.port_manager.down)]
+                        bot_lines.append(lines)
+                    else:
+                        bot_lines.append(new_line)
                 else:
                     new_line=bot_equivalent+split_line[1]
                     bot_lines.append(new_line)
