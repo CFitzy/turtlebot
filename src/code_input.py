@@ -19,9 +19,10 @@ class Code_Input():
         #ctk.CTkLabel(master=self.code_frame, text="Enter code:").pack(side=ctk.TOP)  
         # Text input (size by line not pixel)
         self.textbox = scrolledtext.ScrolledText(master=self.code_frame, font=("Helivetica, 14"), yscrollcommand=True)
-        self.textbox.insert(tk.INSERT, "turtle.down()\nturtle.forward(20)\nturtle.right(90)\nturtle.up()\nturtle.forward(20)")
+        self.set_code("turtle.down()\nturtle.forward(20)\nturtle.right(90)\nturtle.up()\nturtle.forward(20)")
         #self.textbox.pack(side=ctk.TOP, pady=5, expand=True, fill=ctk.BOTH)    
-        self.textbox.place(x=0, y=0, relwidth=1, relheight=1,)
+        self.textbox.place(x=0, y=0, relwidth=1, relheight=1)
+        
         
         ctk.CTkButton(self.textbox, 
                       text="Clear Program", 
@@ -51,6 +52,16 @@ class Code_Input():
         
     def get_code(self):
         return self.textbox.get("0.0", tk.END)
+    
+    def set_code(self, new):
+        self.clear()
+        print(new[0])
+        self.textbox.insert(tk.INSERT, new)
+    
+    def change_textsize(self, size):
+        self.textbox.configure(font=("Helvetica, "+str(size)))
+        print(size)
+        
     
     def clear(self):
         self.textbox.delete("0.0", tk.END)

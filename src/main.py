@@ -29,19 +29,28 @@ class Main():
         
         
         top_frame = ctk.CTkFrame(root, fg_color="#007D02", corner_radius=0)
+        top_frame.pack(side=ctk.TOP, fill=ctk.X)
         connection_states = connection_state.Connection_Show()
         connection_layout = connection_states.make_connection_layout(top_frame)
         self.port_manager = port_manager.port_manager(connection_states)
         self.code_handler = code_handler.Code_Handler(self.port_manager)
         
-        self.top_menu = top_menu.Top_Menu(root, self.port_manager, top_frame,connection_layout)
-         
         self.code_input = code_input.Code_Input(root, self.clear_text)
+        
+        self.top_menu = top_menu.Top_Menu(root, 
+                                          self.port_manager, 
+                                          top_frame,connection_layout, 
+                                          self.code_input.change_textsize,
+                                          self.code_input.set_code,
+                                          self.code_input.get_code
+                                          )
+         
+        #self.code_input = code_input.Code_Input(root, self.clear_text)
         
         self.right_frame= ctk.CTkFrame(root, fg_color="transparent")
         self.right_frame.pack(side=ctk.LEFT, fill=ctk.Y)
         
-
+                
         
         self.turtle_view = ts.Turtle_Simulation(self.right_frame)
         self.button_frame= ctk.CTkFrame(self.right_frame, fg_color="transparent")
