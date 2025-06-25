@@ -105,8 +105,10 @@ class Main():
         result = tk.messagebox.askquestion("Clear confirmation", "Are you sure you want to clear the program", )
         if result=="yes":
             self.code_input.clear()
-            self.text_output.configure(text="")
-            self.turtle.reset()
+            self.text_output.configure(state="normal")
+            self.text_output.delete(1.0, ctk.END)
+            self.text_output.configure(state="disabled")
+            self.turtle_view.reset()
 
 
     def run_text(self):
