@@ -69,8 +69,15 @@ class Main():
         #Binding the resizing event
         root.bind("<Configure>", lambda event: self.update_window(root, event)) 
         
+
+        root.protocol("WM_DELETE_WINDOW", lambda: self.on_closing(root))
+        
         #start window
         root.mainloop()
+        
+    def on_closing(self, root):
+        self.port_manager.close_port()
+        root.destroy()
         
         
     def button_setup(self, frame, text, command, state):
@@ -138,6 +145,7 @@ class Main():
         self.text_output.insert(ctk.END, text="\nStopped")
         self.text_output.configure(state="disabled")
         self.text_output.see(ctk.END)
+        
         #disable stop button
         self.stop_button.configure(state="disabled")
         

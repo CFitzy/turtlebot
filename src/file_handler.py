@@ -11,7 +11,6 @@ import tkinter as tk
 
 class File_Handler():
     def __init__(self, get_text, set_text):
-        print("file")
         self.set_text = set_text
         self.get_text = get_text
         

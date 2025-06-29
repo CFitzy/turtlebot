@@ -55,12 +55,10 @@ class Code_Input():
     
     def set_code(self, new):
         self.clear()
-        print(new[0])
         self.textbox.insert(tk.INSERT, new)
     
     def change_textsize(self, size):
         self.textbox.configure(font=("Helvetica, "+str(size)))
-        print(size)
         
     
     def clear(self):

@@ -43,12 +43,28 @@ class port_manager():
         else:
             self.usb_connection =False
             self.connection_states.update_states(self.usb_connection, self.allow_writing)
+            self.change_port()
+            
+    #list and open first port
+    def open_port(self):
+        ports = list(serial.tools.list_ports.comports())
+        print("ports: ", ports, "\n")
+
+        if len(ports)>0:
+            print("open port ", ports[0].name)       #For debugging
+            self.port = serial.Serial(ports[0].name, baudrate=115200)
+            self.usb_connection =True
+            self.connection_states.update_states(self.usb_connection, self.allow_writing)
+            self.setup = False
+            self.read_port()
+        else:
+            self.change_port()
         
     def read_port(self):
         in_str =""
         i =0
         #non blocking read
-        while (True):
+        while (self.usb_connection):
             #print(i)
             i+=1
             #probe to turtle if setup until acknowledged
@@ -79,23 +95,21 @@ class port_manager():
                         self.allow_writing = True
                         self.connection_states.update_states(self.usb_connection, self.allow_writing)
             except:
+                
+                self.usb_connection = False
                 print("port disconnected")
+                self.change_port()
                     
             time.sleep(1)
 
-    #list and open first port
-    def open_port(self):
-        ports = list(serial.tools.list_ports.comports())
-        print("ports: ", ports, "\n")
-
-        if len(ports)>0:
-            print("open port ", ports[0].name)       #For debugging
-            self.port = serial.Serial(ports[0].name, baudrate=115200)
-            self.usb_connection =True
-            self.connection_states.update_states(self.usb_connection, self.allow_writing)
-            self.setup = False
-            self.read_port()
+    
+            
+    def close_port(self):
+        if not self.port == None:
+            self.port.close()
+            print("port closed")
                     
+            
                      
     #send commmands to turtlebot
     def send_command(self, command):

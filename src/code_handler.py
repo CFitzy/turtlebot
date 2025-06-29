@@ -6,6 +6,7 @@ Created on Mon Jun 16 13:50:23 2025
 """
 import re
 import customtkinter as ctk
+from time import sleep
 
 class Code_Handler():
     def __init__(self, port_manager):
@@ -60,7 +61,7 @@ class Code_Handler():
             #run to get the list of instructions
             exec(res)
             
-            turtlebot_lines = self.translate_to_bot(processed_lines)
+            turtlebot_lines, timings = self.translate_to_bot(processed_lines)
             current_line = 0
             turtle.run_code("turtle.up()", text_output)
             #run list on simulation
@@ -82,6 +83,7 @@ class Code_Handler():
                             self.port_manager.send_command(mini_line)
                     else:
                         self.port_manager.send_command(turtlebot_lines[current_line])
+                    sleep(1*timings[current_line])
                 current_line+=1
             # Lift pen and turn motors off at the                current_line+=1
             #lift pen and turn motors off at end
@@ -98,7 +100,9 @@ class Code_Handler():
             pass
         
     def translate_to_bot(self, processed_lines):
+        #assume speed 1 sec, for 45 degrress, or 20 forward. Would be improved by knowing speed
         bot_lines = []
+        times = []
         pen_down=False
         for line in processed_lines:
             #split line by brackets
@@ -109,20 +113,30 @@ class Code_Handler():
                 if bot_equivalent == "U":
                     pen_down=False
                     bot_lines.append(bot_equivalent+str(self.port_manager.up))
+                    times.append(0.5)
                 elif bot_equivalent == "D":
                     pen_down=True
                     bot_lines.append(bot_equivalent+str(self.port_manager.down))
+                    times.append(0.5)
                 elif "T" in bot_equivalent:
                     new_line=bot_equivalent+split_line[1]
                     if pen_down:
                         lines = ["U"+str(self.port_manager.up), new_line, "D"+str(self.port_manager.down)]
+                        times.append(float(split_line[1])/30+0.5+0.5)
                         bot_lines.append(lines)
                     else:
                         bot_lines.append(new_line)
+                        times.append(float(split_line[1])/30)
                 else:
                     new_line=bot_equivalent+split_line[1]
+                    #if a print to screen give a sec
+                    if bot_equivalent=="=":
+                        times.append(1)
+                    else:
+                        times.append(float(split_line[1])/20)
                     bot_lines.append(new_line)
             else:
                 bot_lines.append("")
+                times.append(0)
             print(bot_lines)
-        return bot_lines
+        return bot_lines, times
