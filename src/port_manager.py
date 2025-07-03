@@ -5,7 +5,6 @@ Created on Thu Jun  5 13:44:36 2025
 @author: cmf6
 """
 
-
 import serial.tools.list_ports
 import serial
 import time
@@ -29,6 +28,7 @@ class port_manager():
         self.allow_writing = False
         self.connection_states.update_states(self.usb_connection, self.allow_writing)
         if self.port:
+            print("close: ", self.port)
             self.port.close()
         
         self.ports = list(serial.tools.list_ports.comports())
@@ -51,6 +51,9 @@ class port_manager():
         
     def set_port(self, port_name):
         self.port_name = port_name
+        self.usb_connection = False
+        print(port_name)
+        self.change_port()
             
     #list and open first port
     def open_port(self):
@@ -81,7 +84,7 @@ class port_manager():
             if(self.setup and not self.allow_writing):
                 print("Hello")
                 self.port.write("=Hello\n".encode('utf-8'))
-                
+
                 
             try:# Check if incoming bytes are waiting to be read from the serial input buffer.
                 if (self.port.in_waiting > 0):
