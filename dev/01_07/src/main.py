@@ -17,7 +17,6 @@ import connection_state
 class Main():
     def __init__(self):
         ctk.set_appearance_mode("light")
-        ctk.set_default_color_theme("green")  # Themes: "blue" (standard), "green", "dark-blue"
         # make window
         root = ctk.CTk()
         # specify window size
@@ -26,7 +25,6 @@ class Main():
         root.title("Turtlebot")
         #set logo image
         root.iconbitmap('./graphics/turtle_logo.ico')
-        
 
         
         

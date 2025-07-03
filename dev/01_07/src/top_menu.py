@@ -35,8 +35,6 @@ class Top_Menu():
         settings_button.menu = tk.Menu(settings_button, tearoff=False, font=("12"))
         settings_button["menu"] = settings_button.menu
         
-        settings_button.menu.add_command(label="Select port", command=self.make_connection_dropdown)
-        
         settings_button.menu.add_command(label="Pen height", command=self.set_pen_view)
         #settings_button.menu.add_command(label="Font size")
         
@@ -59,10 +57,10 @@ class Top_Menu():
         
         ip.Info_Page(top_bar_frame)
         
-        
         reset_image = ctk.CTkImage(light_image=Image.open("./graphics/reset.png"), size=(20, 20))
         
-        self.refresh_button = ctk.CTkButton(
+        try:
+            self.refresh_button = ctk.CTkButton(
                 connection_frame, 
                 image =reset_image, 
                 text="", 
@@ -71,7 +69,16 @@ class Top_Menu():
                 command=self.port_manager.change_port, 
                 width=20
                 )
-        
+        except Exception as e:
+            print(e)
+            self.refresh_button = ctk.CTkButton(
+                connection_frame, 
+                text="Refresh", 
+                fg_color="transparent", 
+                hover_color="#007300", 
+                command=self.port_manager.change_port, 
+                width=20
+                )
             
         self.refresh_button.pack(side=ctk.LEFT, padx=3)
         connection_frame.pack(side=ctk.RIGHT)
@@ -87,56 +94,6 @@ class Top_Menu():
                                     )
         button.pack(side=ctk.LEFT, pady=2)
         return button
-    
-    
-    
-    
-    def make_connection_dropdown(self):
-        self.connection_pop_up = ctk.CTkToplevel()
-        self.connection_pop_up.grab_set()           # Stop other window interaction
-        self.connection_pop_up.focus_force()        # Set input focus to the popup
-        self.connection_pop_up.lift()               #make sure pop up is above other window
-        
-        ctk.CTkLabel(self.connection_pop_up, text="Select a port below").pack()
-        
-        port_names = []
-        ports = self.port_manager.get_ports()
-        
-        for p in ports:
-            port_names.append(p.name)
-        
-        if not ports:
-            port_var = ctk.StringVar(value="No ports")
-        else:
-            port_var = ctk.StringVar(value="Select port")
-        self.port_menu = ctk.CTkOptionMenu(self.connection_pop_up, values=port_names,
-                                         command=self.optionmenu_callback,
-                                         variable=port_var)
-        self.port_menu.pack(padx=5, pady=5)
-        
-        self.refresh_list_button = ctk.CTkButton(self.connection_pop_up, text="Refresh ports", command=self.refresh_ports_list)
-        self.refresh_list_button.pack()
-        
-        
-    def optionmenu_callback(self, choice):
-        print("optionmenu dropdown clicked:", choice)
-        #send picked portname to pm
-        self.port_manager.set_port(choice)
-            
-    def refresh_ports_list(self):
-        port_names = []
-        ports = self.port_manager.get_ports()
-        
-        for p in ports:
-            port_names.append(p.name)
-        
-        if not ports:
-            port_var = ctk.StringVar(value="No ports")
-        else:
-            port_var = ctk.StringVar(value="Select port")
-        self.port_menu.configure(values=port_names, variable=port_var)
-
-        
         
         
     def set_pen_view(self):
