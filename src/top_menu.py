@@ -76,6 +76,13 @@ class Top_Menu():
         self.refresh_button.pack(side=ctk.LEFT, padx=3)
         connection_frame.pack(side=ctk.RIGHT)
         
+        #show which port is currently connected to
+        self.port_label = ctk.CTkLabel(top_bar_frame, text="No port", text_color="#007D02", fg_color="white", width =50, height=20)
+        if port_manager.port:
+            self.port_label.configure(text=port_manager.port.name)
+
+        self.port_label.pack(side=ctk.RIGHT, padx=3)
+        
     def make_top_menu_button(self, top_bar_frame, text):
         button = tk.Menubutton(top_bar_frame, text=text, 
                                     background="#007D02", 
@@ -122,6 +129,8 @@ class Top_Menu():
         print("optionmenu dropdown clicked:", choice)
         #send picked portname to pm
         self.port_manager.set_port(choice)
+        self.port_label.configure(text=choice)
+        self.connection_pop_up.destroy()
             
     def refresh_ports_list(self):
         port_names = []

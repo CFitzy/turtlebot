@@ -47,7 +47,7 @@ class port_manager():
             self.connection_states.update_states(self.usb_connection, self.allow_writing)
             #wait for a second then try again
             time.sleep(1)
-            self.change_port()
+            #self.change_port()
         
     def set_port(self, port_name):
         self.port_name = port_name
@@ -109,10 +109,11 @@ class port_manager():
             except:
                 
                 self.usb_connection = False
+                self.allow_writing = False
                 self.connection_states.update_states(self.usb_connection, self.allow_writing)
                 print("port disconnected", self.usb_connection)
                 self.port_name =None
-                self.change_port()
+                #self.change_port()
                     
             time.sleep(1)
 
