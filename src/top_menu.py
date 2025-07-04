@@ -6,7 +6,6 @@ Created on Thu Jun  5 15:04:28 2025
 """
 import customtkinter as ctk
 import tkinter as tk
-from PIL import Image
 import file_handler as fh
 import information_page as ip
 
@@ -58,23 +57,9 @@ class Top_Menu():
         menu_font.invoke(5)
         
         ip.Info_Page(top_bar_frame)
-        
-        
-        reset_image = ctk.CTkImage(light_image=Image.open("./graphics/reset.png"), size=(20, 20))
-        
-        self.refresh_button = ctk.CTkButton(
-                connection_frame, 
-                image =reset_image, 
-                text="", 
-                fg_color="transparent", 
-                hover_color="#007300", 
-                command=self.port_manager.change_port, 
-                width=20
-                )
-        
             
-        self.refresh_button.pack(side=ctk.LEFT, padx=3)
-        connection_frame.pack(side=ctk.RIGHT)
+        #self.refresh_button.pack(side=ctk.LEFT, padx=3)
+        connection_frame.pack(side=ctk.RIGHT, padx=1)
         
         #show which port is currently connected to
         self.port_label = ctk.CTkLabel(top_bar_frame, text="No port", text_color="#007D02", fg_color="white", width =50, height=20)
@@ -82,6 +67,7 @@ class Top_Menu():
             self.port_label.configure(text=port_manager.port.name)
 
         self.port_label.pack(side=ctk.RIGHT, padx=3)
+        
         
     def make_top_menu_button(self, top_bar_frame, text):
         button = tk.Menubutton(top_bar_frame, text=text, 
@@ -97,7 +83,6 @@ class Top_Menu():
     
     
     
-    
     def make_connection_dropdown(self):
         self.connection_pop_up = ctk.CTkToplevel()
         self.connection_pop_up.grab_set()           # Stop other window interaction
@@ -106,16 +91,11 @@ class Top_Menu():
         
         ctk.CTkLabel(self.connection_pop_up, text="Select a port below").pack()
         
-        port_names = []
-        ports = self.port_manager.get_ports()
+        first_option, port_names = self.port_manager.get_port_names()
+        if not port_names:
+            self.port_label.configure(text="None")
         
-        for p in ports:
-            port_names.append(p.name)
-        
-        if not ports:
-            port_var = ctk.StringVar(value="No ports")
-        else:
-            port_var = ctk.StringVar(value="Select port")
+        port_var = ctk.StringVar(value=first_option)
         self.port_menu = ctk.CTkOptionMenu(self.connection_pop_up, values=port_names,
                                          command=self.optionmenu_callback,
                                          variable=port_var)
@@ -133,16 +113,8 @@ class Top_Menu():
         self.connection_pop_up.destroy()
             
     def refresh_ports_list(self):
-        port_names = []
-        ports = self.port_manager.get_ports()
-        
-        for p in ports:
-            port_names.append(p.name)
-        
-        if not ports:
-            port_var = ctk.StringVar(value="No ports")
-        else:
-            port_var = ctk.StringVar(value="Select port")
+        first_option, port_names = self.port_manager.get_port_names()
+        port_var = ctk.StringVar(value=first_option)
         self.port_menu.configure(values=port_names, variable=port_var)
 
         
@@ -153,37 +125,35 @@ class Top_Menu():
         self.pop_up.grab_set()           # Stop other window interaction
         self.pop_up.focus_force()        # Set input focus to the popup
         self.pop_up.lift()               #make sure pop up is above other window
-        
-        self.down_view()
-        
-    def down_view(self):
+        self.pop_up.iconbitmap('./graphics/turtle_logo.ico')
         down_frame = ctk.CTkFrame(self.pop_up)
         down_frame.pack()
         down_label = ctk.CTkLabel(down_frame, text="Adjust pen height until it is just on the paper")
         down_label.pack(padx=5, pady=5)
-        down_slider = ctk.CTkSlider(down_frame, from_=0, to=1, command=self.down_slider_event, number_of_steps=20)
+        down_slider = ctk.CTkSlider(down_frame, from_=0, to=1, command=self.down_slider_event, number_of_steps=100)
         down_slider.pack(pady=5)
         down_slider.set(self.down)
         self.down_slider_event(self.down)
-        next_button = ctk.CTkButton(down_frame, text="Save", command=self.save)
-        next_button.pack(pady=5)
+        save_button = ctk.CTkButton(down_frame, text="Save", command=self.save)
+        save_button.pack(pady=5)
         
 
     def down_slider_event(self, value):
         print(value)
         #value=value/ranger
-        value = round(value, 2)
-        string_value = str(value)
-        if value<=0.8:
-            setup_value = round(value+0.2, 2)
-            self.port_manager.send_command("D"+str(setup_value))
-            self.up= setup_value
-        else:                                                           #very unlikely to occur as would mean ground is taller than wheels
-            setup_value = round(value-0.2, 2)
-            self.port_manager.send_command("D"+str(setup_value))
-            self.up= 1
-        self.port_manager.send_command("D"+string_value)
-        self.port_manager.send_command("o")
+        #value = round(value, 2)
+        #if value<=0.8:
+            #setup_value = round(value+0.2, 2)
+            #self.port_manager.send_command("D"+str(setup_value))
+            #self.up= setup_value
+        #else:                                                           #very unlikely to occur as would mean ground is taller than wheels
+            #setup_value = round(value-0.2, 2)
+            #self.port_manager.send_command("D"+str(setup_value))
+            #self.up= 1
+        #self.port_manager.send_command("D"+string_value)
+        #self.port_manager.send_command("o")
+        if(abs(self.down-value)>0.02):
+            self.port_manager.send_command("D"+str(value))
         self.down=value
         
     def save(self):

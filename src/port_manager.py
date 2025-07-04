@@ -21,8 +21,6 @@ class port_manager():
         self.port = None
         self.port_name =None
         self.connection_states.update_states(self.usb_connection, self.allow_writing)
-        self.read = threading.Thread(target= self.open_port)
-        self.read.start()
         
     def change_port(self):
         self.allow_writing = False
@@ -32,7 +30,7 @@ class port_manager():
             self.port.close()
         
         self.ports = list(serial.tools.list_ports.comports())
-        print("ports: ", self.ports, "\n", self.port_name)
+        print("change ports: ", self.ports, "\n", self.port_name)
 
         if not self.port_name == None:
             print("open port ", self.port_name)       #For debugging
@@ -41,38 +39,34 @@ class port_manager():
             self.usb_connection =True
             self.connection_states.update_states(self.usb_connection, self.allow_writing)
             self.port_name =None
-            return True
+            threading.Thread(target= self.read_port).start()
         else:
             self.usb_connection =False
             self.connection_states.update_states(self.usb_connection, self.allow_writing)
             #wait for a second then try again
             time.sleep(1)
-            #self.change_port()
         
     def set_port(self, port_name):
-        self.port_name = port_name
+        #if first 3 letters
+        if port_name[:3] == "COM":
+            self.port_name = port_name
+            print(port_name[:3])
+        else:
+            self.port_name = "/dev/"+port_name
         self.usb_connection = False
         print(port_name)
         self.change_port()
             
-    #list and open first port
-    def open_port(self):
-        self.ports = list(serial.tools.list_ports.comports())
-        print("ports: ", self.ports, "\n")
-
-        if len(self.ports)>0:
-            print("open port ", self.ports[0].name)       #For debugging
-            self.port = serial.Serial(self.ports[0].name, baudrate=115200)
-            self.usb_connection =True
-            self.connection_states.update_states(self.usb_connection, self.allow_writing)
-            self.setup = False
-            self.read_port()
-        else:
-            self.change_port()
-            
     
-    def get_ports(self):
-        return list(serial.tools.list_ports.comports())
+    def get_port_names(self):
+        port_names = []
+        for p in list(serial.tools.list_ports.comports()):
+            port_names.append(p.name)
+        
+        if not port_names:
+            return "No ports", port_names
+        else:
+            return "Select port", port_names
         
         
         
@@ -112,8 +106,7 @@ class port_manager():
                 self.allow_writing = False
                 self.connection_states.update_states(self.usb_connection, self.allow_writing)
                 print("port disconnected", self.usb_connection)
-                self.port_name =None
-                #self.change_port()
+                self.close_port()
                     
             time.sleep(1)
 
@@ -123,7 +116,6 @@ class port_manager():
         if not self.port == None:
             self.port.close()
             self.usb_connection = False
-            #self.connection_states.update_states(self.usb_connection, self.allow_writing)
             print("port closed")
                     
             
@@ -136,10 +128,3 @@ class port_manager():
             print("outgoing: ", out)
             self.port.write(out)
         
-
-
-
-
-
-if __name__=="__main__":
-    port_manager()

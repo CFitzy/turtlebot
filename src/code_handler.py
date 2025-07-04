@@ -77,11 +77,11 @@ class Code_Handler():
                 if turtlebot_lines:
                     if not turtlebot_lines[current_line][0] == "":
                         #If a turn is done, handle the three commands (pen up, turn, pen down)
-                        if "T" in turtlebot_lines[current_line][1]:
-                            for mini_line in turtlebot_lines[current_line]:
-                                self.port_manager.send_command(mini_line)
-                        else:
-                            self.port_manager.send_command(turtlebot_lines[current_line])
+                        #if "T" in turtlebot_lines[current_line][1]:
+                            #for mini_line in turtlebot_lines[current_line]:
+                                #self.port_manager.send_command(mini_line)
+                        #else:
+                        self.port_manager.send_command(turtlebot_lines[current_line])
                 # Run code on the simulator
                 turtle.run_code(line, text_output)
                 if timings:
@@ -114,22 +114,24 @@ class Code_Handler():
                 if split_line[0] in self.code_dictionary:
                     bot_equivalent = self.code_dictionary.get(split_line[0])
                     if bot_equivalent == "U":
-                        pen_down=False
-                        bot_lines.append(bot_equivalent+str(self.port_manager.up))
+                        #pen_down=False
+                        #bot_lines.append(bot_equivalent+str(self.port_manager.up))
+                        bot_lines.append(bot_equivalent)
                         times.append(0.25)
                     elif bot_equivalent == "D":
-                        pen_down=True
-                        bot_lines.append(bot_equivalent+str(self.port_manager.down))
+                        #pen_down=True
+                        #bot_lines.append(bot_equivalent+str(self.port_manager.down))
+                        bot_lines.append(bot_equivalent)
                         times.append(0.25)
                     elif "T" in bot_equivalent:
                         new_line=bot_equivalent+split_line[1]
-                        if pen_down:
-                            lines = ["U"+str(self.port_manager.up), new_line, "D"+str(self.port_manager.down)]
-                            times.append(float(split_line[1])/45+0.5)
-                            bot_lines.append(lines)
-                        else:
-                            bot_lines.append(new_line)
-                            times.append(float(split_line[1])/45)
+                        #if pen_down:
+                            #lines = ["U"+str(self.port_manager.up), new_line, "D"+str(self.port_manager.down)]
+                            #times.append(float(split_line[1])/45+0.5)
+                            #bot_lines.append(lines)
+                        #else:
+                        bot_lines.append(new_line)
+                        times.append(float(split_line[1])/45)
                     else:
                         new_line=bot_equivalent+split_line[1]
                         #if a print to screen give a sec

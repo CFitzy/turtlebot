@@ -23,10 +23,10 @@ class File_Handler():
         
             filename = ctk.filedialog.askopenfilename(initialdir="/",
                                                  title = "Select file",
-                                                 filetypes = (("Text files",
+                                                 filetypes = [("Text files",
                                                                "*.txt*"),
-                                                              ("all files",
-                                                               "*.*")))
+                                                              ("All files",
+                                                               "*.*")])
             print(filename)
         
             #get text from file

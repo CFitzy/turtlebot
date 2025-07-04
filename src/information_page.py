@@ -4,7 +4,7 @@ Created on Mon Jun 30 11:26:00 2025
 
 @author: cmf6
 """
-import webview
+
 import tkinter as tk
 import customtkinter as ctk
 from tkhtmlview import HTMLScrolledText

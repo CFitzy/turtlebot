@@ -25,7 +25,9 @@ class Main():
         root.geometry(str(self.width)+"x"+str(self.height))
         root.title("Turtlebot")
         #set logo image
-        root.iconbitmap('./graphics/turtle_logo.ico')
+        root.iconbitmap('./graphics/turtle_logo.ico', default='./graphics/turtle_logo.ico')
+        
+
         
 
         
