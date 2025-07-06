@@ -21,6 +21,7 @@ class Code_Handler():
         self.port_manager = port_manager
         
     def handle_code(self, code_input, turtle, text_output):
+        variables = {}
         if len(code_input) >1:
             #text_output.configure(text="Compiling code")
             text_output.configure(state="normal")
@@ -28,7 +29,7 @@ class Code_Handler():
             text_output.insert(ctk.END, text="Compiling code")
             text_output.configure(state="disabled")
         try:
-            #test if the code compiles
+            #test if the code compiles (syntax errors)
             turtle.test_code(code_input, text_output)
 
             if not text_output.get(1.0, 1.14) == "Compiling code":
@@ -45,14 +46,31 @@ class Code_Handler():
                     tabs+="\t"
                 #if line not just spaces
                 if not line.isspace() and not line=="":
-                    print("b",line)
-                    if line.strip()[0]=="t" or line.strip()[0]=="p":
+                    print("b",line, line.strip())
+                    if line.strip()[:7]=="turtle." or line.strip()[:5]=="print":
+                        if line.strip()[:7]=="turtle.":
+                            #replace any vars
+                            split_line = re.split(r'[()\"+]+', line)
+                            print(split_line[1])
+                            for i in range (1, len(split_line)):
+                                if split_line[i] in variables:
+                                    print("2, replace", split_line[i], variables.get(split_line[i]))
+                                    line = line.replace(split_line[i], variables.get(split_line[i]))
+                                    print("replace", line)
+                        
+                        
+                        
                         line_processed = line.replace("\"", "\\\"")
                         preprocessing_lines.append(tabs+"processed_lines.append(\""+line_processed.strip()+"\")") 
+                        
 
-                    elif line.strip()[0]=="f":
+                    elif line.strip()[:4]=="for ":
                         for_loop+=1
                         preprocessing_lines.append(line)
+                    elif "=" in line:
+                        variable = line.split("=")
+                        variables[variable[0]] = variable[1]
+                        print(variables)
                     else:
                         preprocessing_lines.append(line)
             #join the list together with newlines between each
@@ -76,11 +94,6 @@ class Code_Handler():
                 
                 if turtlebot_lines:
                     if not turtlebot_lines[current_line][0] == "":
-                        #If a turn is done, handle the three commands (pen up, turn, pen down)
-                        #if "T" in turtlebot_lines[current_line][1]:
-                            #for mini_line in turtlebot_lines[current_line]:
-                                #self.port_manager.send_command(mini_line)
-                        #else:
                         self.port_manager.send_command(turtlebot_lines[current_line])
                 # Run code on the simulator
                 turtle.run_code(line, text_output)

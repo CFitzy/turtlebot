@@ -24,7 +24,7 @@ class File_Handler():
             filename = ctk.filedialog.askopenfilename(initialdir="/",
                                                  title = "Select file",
                                                  filetypes = [("Text files",
-                                                               "*.txt*"),
+                                                               "*.txt"),
                                                               ("All files",
                                                                "*.*")])
             print(filename)

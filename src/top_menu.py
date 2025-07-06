@@ -8,6 +8,7 @@ import customtkinter as ctk
 import tkinter as tk
 import file_handler as fh
 import information_page as ip
+import sys
 
 
 class Top_Menu():
@@ -62,7 +63,7 @@ class Top_Menu():
         connection_frame.pack(side=ctk.RIGHT, padx=1)
         
         #show which port is currently connected to
-        self.port_label = ctk.CTkLabel(top_bar_frame, text="No port", text_color="#007D02", fg_color="white", width =50, height=20)
+        self.port_label = ctk.CTkLabel(top_bar_frame, text="No port", text_color="#007D02", fg_color="white", width =100, height=20)
         if port_manager.port:
             self.port_label.configure(text=port_manager.port.name)
 
@@ -78,6 +79,10 @@ class Top_Menu():
                                     activeforeground="#FFFFFF",
                                     border=0
                                     )
+        #test if macOs? if so make the button text green as will have a white background
+        if sys.platform == "darwin":
+            button.configure(foreground="#007D02", activeforeground="#007D02")
+            
         button.pack(side=ctk.LEFT, pady=2)
         return button
     

@@ -29,9 +29,6 @@ class Main():
         
 
         
-
-        
-        
         top_frame = ctk.CTkFrame(root, fg_color="#007D02", corner_radius=0)
         top_frame.pack(side=ctk.TOP, fill=ctk.X)
         connection_states = connection_state.Connection_Show()
@@ -49,7 +46,6 @@ class Main():
                                           self.code_input.get_code
                                           )
          
-        #self.code_input = code_input.Code_Input(root, self.clear_text)
         
         self.right_frame= ctk.CTkFrame(root, fg_color="transparent")
         self.right_frame.pack(side=ctk.LEFT, fill=ctk.Y)
@@ -66,7 +62,6 @@ class Main():
         
         
         #shows output errors on label
-        #self.text_output = ctk.CTkLabel(master=self.right_frame, text="Error Output here", width=500, wraplength=200, height = 100)
         self.text_output = ctk.CTkTextbox(self.right_frame, width=300, corner_radius=0, state="disabled")
         self.text_output.pack(pady=5)  
         
