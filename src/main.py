@@ -38,16 +38,21 @@ class Main():
         
         self.code_input = code_input.Code_Input(root, self.clear_text)
         
+        self.right_frame= ctk.CTkFrame(root, fg_color="transparent")
+        
+        #shows output errors on label
+        self.text_output = ctk.CTkTextbox(self.right_frame, width=300, corner_radius=0, state="disabled")
+        
         self.top_menu = top_menu.Top_Menu(root, 
                                           self.port_manager, 
                                           top_frame,connection_layout, 
-                                          self.code_input.change_textsize,
+                                          self.change_textsize,
                                           self.code_input.set_code,
                                           self.code_input.get_code
                                           )
          
         
-        self.right_frame= ctk.CTkFrame(root, fg_color="transparent")
+        
         self.right_frame.pack(side=ctk.LEFT, fill=ctk.Y)
         
                 
@@ -61,8 +66,7 @@ class Main():
         self.buttons_layout(True)
         
         
-        #shows output errors on label
-        self.text_output = ctk.CTkTextbox(self.right_frame, width=300, corner_radius=0, state="disabled")
+        
         self.text_output.pack(pady=5)  
         
         #Binding the resizing event
@@ -82,7 +86,12 @@ class Main():
     def button_setup(self, frame, text, command, state):
         return ctk.CTkButton(frame, text=text, command=command, width=50, fg_color="#00b335", text_color="white", hover_color="#007300", state=state)
 
-        
+    def change_textsize(self, size):
+            
+        self.code_input.change_textsize(size)
+        self.text_output.configure(font=("Helvetica", size))
+
+
     #update window to meet current size requirements (for user experience the window is recommeded not to be smaller than (600,450))
     def update_window(self, root, event=None):
         self.code_input.resize(root.winfo_width()/2, root.winfo_height())

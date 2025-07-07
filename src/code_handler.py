@@ -22,6 +22,7 @@ class Code_Handler():
         
     def handle_code(self, code_input, turtle, text_output):
         variables = {}
+        lengths = []
         if len(code_input) >1:
             #text_output.configure(text="Compiling code")
             text_output.configure(state="normal")
@@ -44,30 +45,35 @@ class Code_Handler():
                 for_loop = line.count("\t")
                 for i in range (for_loop):
                     tabs+="\t"
-                #if line not just spaces
-                if not line.isspace() and not line=="":
+                #if line not just spaces, empty or starting with # aka a comment
+                if not line.isspace() and not line=="" and not line[0]=="#":
                     print("b",line, line.strip())
+                    #replace any vars
+                    split_line = re.split(r'[()\"+]+', line)
+                    #for length of line look  for and substite any variables
+                    for i in range (1, len(split_line)):
+                        #remove spaces
+                        split_line[i] = split_line[i].replace(" ","")
+                        if split_line[i] in variables:
+                            print("2, replace", split_line[i], variables.get(split_line[i]))
+                            line = line.replace(split_line[i], variables.get(split_line[i]))
+                            print("replace", line)
+                            
                     if line.strip()[:7]=="turtle." or line.strip()[:5]=="print":
-                        if line.strip()[:7]=="turtle.":
-                            #replace any vars
-                            split_line = re.split(r'[()\"+]+', line)
-                            print(split_line[1])
-                            for i in range (1, len(split_line)):
-                                if split_line[i] in variables:
-                                    print("2, replace", split_line[i], variables.get(split_line[i]))
-                                    line = line.replace(split_line[i], variables.get(split_line[i]))
-                                    print("replace", line)
-                        
-                        
-                        
                         line_processed = line.replace("\"", "\\\"")
                         preprocessing_lines.append(tabs+"processed_lines.append(\""+line_processed.strip()+"\")") 
+                        
+                        if line.strip()[:14]=="turtle.forward":
+                            lengths.append(float(re.split(r'[()]+', line)[1]))
+                            print(lengths)
                         
 
                     elif line.strip()[:4]=="for ":
                         for_loop+=1
                         preprocessing_lines.append(line)
                     elif "=" in line:
+                        line = line.replace(" ","")
+                        print(line)
                         variable = line.split("=")
                         variables[variable[0]] = variable[1]
                         print(variables)
@@ -78,6 +84,9 @@ class Code_Handler():
         
             #run to get the list of instructions
             exec(res)
+            
+            #work out turtle drawing scale
+            turtle.work_out_scale(lengths)
             
             turtlebot_lines, timings = self.translate_to_bot(processed_lines)
             current_line = 0

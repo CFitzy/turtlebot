@@ -21,6 +21,9 @@ class port_manager():
         self.port = None
         self.port_name =None
         self.connection_states.update_states(self.usb_connection, self.allow_writing)
+        self.sent = 0
+        #number of commands the buffer can take at a time
+        self.buffer_number = 10
         
     def change_port(self):
         self.allow_writing = False
@@ -72,12 +75,14 @@ class port_manager():
         
     def read_port(self):
         in_str =""
+
         #non blocking read
         while (self.usb_connection):
             #probe to turtle if setup until acknowledged
             if(self.setup and not self.allow_writing):
                 print("Hello")
                 self.port.write("=Hello\n".encode('utf-8'))
+                self.sent=self.sent+1
 
                 
             try:# Check if incoming bytes are waiting to be read from the serial input buffer.
@@ -100,6 +105,9 @@ class port_manager():
                     if "=Hello ACK" in in_str:
                         self.allow_writing = True
                         self.connection_states.update_states(self.usb_connection, self.allow_writing)
+                    if "ACK" in in_str:
+                        self.sent=self.sent-1
+                        print("ACKED", self.sent)
             except:
                 
                 self.usb_connection = False
@@ -123,8 +131,14 @@ class port_manager():
     #send commmands to turtlebot
     def send_command(self, command):
         if self.allow_writing:
+            self.sent = self.sent+1
             command=command+"\n"
             out = command.encode("utf-8")
             print("outgoing: ", out)
             self.port.write(out)
+            print(self.sent)
+            while self.sent>self.buffer_number:
+                #print("waiting")
+                time.sleep(0.01)
+            print("escape", self.sent)
         
