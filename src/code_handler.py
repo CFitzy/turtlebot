@@ -22,7 +22,7 @@ class Code_Handler():
         
     def handle_code(self, code_input, turtle, text_output):
         variables = {}
-        lengths = []
+
         if len(code_input) >1:
             #text_output.configure(text="Compiling code")
             text_output.configure(state="normal")
@@ -40,6 +40,9 @@ class Code_Handler():
             for_loop =0
             processed_lines = []
             preprocessing_lines = []
+            
+            
+            
             for line in code_lines:
                 tabs = ""
                 for_loop = line.count("\t")
@@ -47,7 +50,7 @@ class Code_Handler():
                     tabs+="\t"
                 #if line not just spaces, empty or starting with # aka a comment
                 if not line.isspace() and not line=="" and not line[0]=="#":
-                    print("b",line, line.strip())
+                    #print("b",line, line.strip())
                     #replace any vars
                     split_line = re.split(r'[()\"+]+', line)
                     #for length of line look  for and substite any variables
@@ -62,10 +65,6 @@ class Code_Handler():
                     if line.strip()[:7]=="turtle." or line.strip()[:5]=="print":
                         line_processed = line.replace("\"", "\\\"")
                         preprocessing_lines.append(tabs+"processed_lines.append(\""+line_processed.strip()+"\")") 
-                        
-                        if line.strip()[:14]=="turtle.forward":
-                            lengths.append(float(re.split(r'[()]+', line)[1]))
-                            print(lengths)
                         
 
                     elif line.strip()[:4]=="for ":
@@ -86,7 +85,7 @@ class Code_Handler():
             exec(res)
             
             #work out turtle drawing scale
-            turtle.work_out_scale(lengths)
+            turtle.work_out_scale(processed_lines)
             
             turtlebot_lines, timings = self.translate_to_bot(processed_lines)
             current_line = 0

@@ -108,20 +108,33 @@ class Turtle_Simulation():
     def resize(self, width, height):
         self.canvas.configure(width=width, height=height)
         
-    def work_out_scale(self, lengths):
-        max_len = max(lengths)
-        min_len = -1 * min(lengths)
-        longest_len = max(max_len, min_len)
-        print(max(lengths))
-        print(min(lengths))
-        print(longest_len)
-        print(self.canvas.winfo_height(), self.canvas.winfo_width())
+    def work_out_scale(self, lines):
+        horizontal = 130
+        vertical =130
+        angle = self.angle
+        for line in lines:
+            split_code = re.split(r'[()]+', line)
+            if split_code[0] == "turtle.forward":
+                x = int(split_code[1])*math.sin(math.radians(angle))
+                y = int(split_code[1])*math.cos(math.radians(angle))
+                horizontal = horizontal+x
+                vertical = vertical+y
+              
+                
+            #if left or right change current direction
+            elif split_code[0] == "turtle.right":
+                angle = (angle+float(split_code[1]))%360
+            elif split_code[0] == "turtle.left":
+                angle = (angle-float(split_code[1]))%360
+        
+        longest_len = max(vertical, horizontal)
+
         smallest_screen_dimension = min(self.canvas.winfo_height(),self.canvas.winfo_width())
         if longest_len > smallest_screen_dimension -130:
             new_scale= (smallest_screen_dimension-130)/(longest_len)
-            print(self.scale, " ", longest_len*self.scale)
+
             if new_scale<self.scale:
-                print(new_scale)
                 self.scale = new_scale
-        print("boop")
+        self.angle = angle
+
         
