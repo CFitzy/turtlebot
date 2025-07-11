@@ -1,5 +1,11 @@
 installs
 
 pip install customtkinter
-requests
-tkhtmlview
+pip install tkhtmlview
+pip install pyserial (for serial library)
+pip uninstall Pillow
+
+For exe:
+pip install auto-py-to-exe
+
+(need "! auto-py-to-exe" to run at least on windows)

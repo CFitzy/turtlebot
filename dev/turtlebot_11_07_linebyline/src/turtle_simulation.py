@@ -41,11 +41,11 @@ class Turtle_Simulation():
             try:
                 self.terry.shapesize(stretch_wid=self.scale, stretch_len=self.scale, outline=1)
                 #if turtle forward resize in that direction
-                #split_code = re.split(r'[()]+', code)
-                #if split_code[0] == "turtle.forward":
-                  #split_code[1] = float(split_code[1])*self.scale
-                  #code=split_code[0]+"("+str(split_code[1])+")"
-                 # print(code)
+                split_code = re.split(r'[()]+', code)
+                if split_code[0] == "turtle.forward":
+                  split_code[1] = float(split_code[1])*self.scale
+                  code=split_code[0]+"("+str(split_code[1])+")"
+                  print(code)
                    # vertical = float(split_code[1])*math.cos(self.angle)
                     #if horizontal> self.canvas.canvwidth/2:
                      #   self.screen.screensize(canvwidth=self.screen.canvwidth +horizontal, canvheight=self.screen.canvheight)
@@ -56,10 +56,6 @@ class Turtle_Simulation():
                #     self.angle = (self.angle+float(split_code[1]))%360
                 #elif split_code[0] == "turtle.left":
                 #    self.angle = (self.angle-float(split_code[1]))%360
-                
-                output_label.configure(state="normal")
-                output_label.insert(ctk.END, text=code+"\n")
-                output_label.configure(state="disabled")
                     
                 #Execute code
                 #added, otherwise doesn't know what the turtle is
@@ -73,8 +69,6 @@ class Turtle_Simulation():
                 output_label.configure(state="disabled")
                 output_label.see(ctk.END)
                 self.stop_turtle()
-        else:
-            raise Exception("Paused")
             
             
     def test_code(self, code, output_label):
