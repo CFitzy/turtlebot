@@ -37,29 +37,26 @@ class Turtle_Simulation():
 
 
     def run_code(self, code, output_label):
+        min_turtle_scale = 0.1
+        
         if not self.paused:
             try:
-                self.terry.shapesize(stretch_wid=self.scale, stretch_len=self.scale, outline=1)
-                #if turtle forward resize in that direction
-                #split_code = re.split(r'[()]+', code)
-                #if split_code[0] == "turtle.forward":
-                  #split_code[1] = float(split_code[1])*self.scale
-                  #code=split_code[0]+"("+str(split_code[1])+")"
-                 # print(code)
-                   # vertical = float(split_code[1])*math.cos(self.angle)
-                    #if horizontal> self.canvas.canvwidth/2:
-                     #   self.screen.screensize(canvwidth=self.screen.canvwidth +horizontal, canvheight=self.screen.canvheight)
-                     #   
-                        
-                #if left or right change current direction
-                #elif split_code[0] == "turtle.right":
-               #     self.angle = (self.angle+float(split_code[1]))%360
-                #elif split_code[0] == "turtle.left":
-                #    self.angle = (self.angle-float(split_code[1]))%360
-                
                 output_label.configure(state="normal")
                 output_label.insert(ctk.END, text=code+"\n")
                 output_label.configure(state="disabled")
+                
+                #shrink turtle with threshold to keep turtle visible
+                if self.scale>=min_turtle_scale:
+                    self.terry.shapesize(stretch_wid=self.scale, stretch_len=self.scale, outline=1)
+                else:
+                    self.terry.shapesize(stretch_wid=min_turtle_scale, stretch_len=min_turtle_scale, outline=1)
+                #if turtle forward resize in that direction
+                split_code = re.split(r'[()]+', code)
+                if split_code[0] == "turtle.forward":
+                  split_code[1] = float(split_code[1])*self.scale
+                  code=split_code[0]+"("+str(split_code[1])+")"
+                  print(code)
+
                     
                 #Execute code
                 #added, otherwise doesn't know what the turtle is
@@ -116,17 +113,17 @@ class Turtle_Simulation():
         self.canvas.configure(width=width, height=height)
         
     def work_out_scale(self, lines):
-        offset =130#self.canvas.winfo_height()/3
-        h_offset=self.canvas.winfo_width()/4
+        offset =self.canvas.winfo_height()/3
+        h_offset=self.canvas.winfo_width()/3
         neg_horizontal, pos_horizontal = offset, offset
         neg_vertical, pos_vertical =0,0
         angle = self.angle
         h_pos_scale, v_pos_scale, h_neg_scale, v_neg_scale= 1,1,1,1
+        print(h_offset, offset)
         for line in lines:
-            split_code = re.split(r'[()]+', line)
-            if split_code[0] == "turtle.forward":
-                x = int(split_code[1])*math.sin(math.radians(angle))
-                y = int(split_code[1])*math.cos(math.radians(angle))
+            if line[0] == "F":
+                x = int(line[1:])*math.sin(math.radians(angle))
+                y = int(line[1:])*math.cos(math.radians(angle))
                 if x>0:
                     pos_horizontal = pos_horizontal+x
                 else:
@@ -142,10 +139,10 @@ class Turtle_Simulation():
               
                 
             #if left or right change current direction
-            elif split_code[0] == "turtle.right":
-                angle = (angle+float(split_code[1]))%360
-            elif split_code[0] == "turtle.left":
-                angle = (angle-float(split_code[1]))%360
+            elif line[0] == "R":
+                angle = (angle+float(line[1:]))%360
+            elif line[0] == "L":
+                angle = (angle-float(line[1:]))%360
         print(neg_horizontal, pos_horizontal, neg_vertical, pos_vertical)
         #longest_len = max(vertical, horizontal)
         #min_length = min(vertical, horizontal)
@@ -153,25 +150,26 @@ class Turtle_Simulation():
         #smallest_screen_dimension = min(self.canvas.winfo_height(),self.canvas.winfo_width())
         
         if neg_horizontal < 0:
-            h_neg_scale= (h_offset)/(abs(neg_horizontal)+h_offset+20)
-            print(h_neg_scale)
+            h_neg_scale= (h_offset-20)/(abs(neg_horizontal)+h_offset)
+            print("h-", h_neg_scale)
         elif pos_horizontal > self.canvas.winfo_width()-h_offset:
-            h_pos_scale= (self.canvas.winfo_width()-h_offset)/(pos_horizontal)
-            print(h_pos_scale)
+            h_pos_scale= (self.canvas.winfo_width()-h_offset-20)/(pos_horizontal)
+            print("h+",h_pos_scale)
         
         #south
         if neg_vertical > self.canvas.winfo_height()-offset:
-            v_neg_scale= (self.canvas.winfo_height()-offset)/(neg_vertical+20)
+            v_neg_scale= (self.canvas.winfo_height()-offset-20)/(neg_vertical)
             print("nv:",v_neg_scale)
         #north
         elif pos_vertical < -offset:
-            v_pos_scale= (offset)/(abs(pos_vertical)+offset)
+            v_pos_scale= (offset-20)/(abs(pos_vertical)+offset)
             print("pv:",v_pos_scale)
         
         new_scale = min(h_neg_scale, h_pos_scale, v_neg_scale, v_pos_scale)
 
         if new_scale<self.scale:
             self.scale = new_scale
+            print("newscale", new_scale)
         self.angle = angle
 
         
