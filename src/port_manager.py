@@ -77,6 +77,7 @@ class port_manager():
         
     def read_port(self):
         in_str =""
+        self.settings_acquired = True
 
         #non blocking read
         while (self.usb_connection):
@@ -110,6 +111,10 @@ class port_manager():
                     if "ACK" in in_str:
                         self.sent=self.sent-1
                         print("ACKED", self.sent)
+                    if not self.settings_acquired:
+                        self.saved_settings = in_str
+                        self.settings_acquired = True
+                        
             except:
                 
                 self.usb_connection = False
@@ -146,6 +151,13 @@ class port_manager():
             
             
     def get_settings(self):
-        self.send_command("get")
+        self.settings_acquired = False
+        out = "get\n".encode("utf-8")
+        print("outgoing: ", out)
+        self.port.write(out)
+        
+        while not self.settings_acquired:
+            time.sleep(0.01)
+        return self.saved_settings
         
         

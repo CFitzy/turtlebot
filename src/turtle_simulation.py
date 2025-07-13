@@ -115,6 +115,7 @@ class Turtle_Simulation():
     def work_out_scale(self, lines):
         offset =self.canvas.winfo_height()/3
         h_offset=self.canvas.winfo_width()/3
+        padding =20
         neg_horizontal, pos_horizontal = offset, offset
         neg_vertical, pos_vertical =0,0
         angle = self.angle
@@ -150,19 +151,19 @@ class Turtle_Simulation():
         #smallest_screen_dimension = min(self.canvas.winfo_height(),self.canvas.winfo_width())
         
         if neg_horizontal < 0:
-            h_neg_scale= (h_offset-20)/(abs(neg_horizontal)+h_offset)
+            h_neg_scale= (h_offset-padding)/(abs(neg_horizontal)+h_offset)
             print("h-", h_neg_scale)
         elif pos_horizontal > self.canvas.winfo_width()-h_offset:
-            h_pos_scale= (self.canvas.winfo_width()-h_offset-20)/(pos_horizontal)
+            h_pos_scale= (self.canvas.winfo_width()-h_offset-padding)/(pos_horizontal)
             print("h+",h_pos_scale)
         
         #south
         if neg_vertical > self.canvas.winfo_height()-offset:
-            v_neg_scale= (self.canvas.winfo_height()-offset-20)/(neg_vertical)
+            v_neg_scale= (self.canvas.winfo_height()-offset-padding)/(neg_vertical)
             print("nv:",v_neg_scale)
         #north
         elif pos_vertical < -offset:
-            v_pos_scale= (offset-20)/(abs(pos_vertical)+offset)
+            v_pos_scale= (offset-padding)/(abs(pos_vertical)+offset)
             print("pv:",v_pos_scale)
         
         new_scale = min(h_neg_scale, h_pos_scale, v_neg_scale, v_pos_scale)
