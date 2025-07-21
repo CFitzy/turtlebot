@@ -149,7 +149,7 @@ class Top_Menu():
     def down_slider_event(self, value):
         print(value)
         #value=value/ranger
-        #value = round(value, 2)
+        value = round(value, 2)
         #if value<=0.8:
             #setup_value = round(value+0.2, 2)
             #self.port_manager.send_command("D"+str(setup_value))

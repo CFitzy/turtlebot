@@ -30,7 +30,7 @@ class setup_wizard():
         print(self.settings)
         
     def setup_wizard(self):
-
+        
         self.wizard_pop_up = ctk.CTkToplevel()
         self.wizard_pop_up.grab_set()           # Stop other window interaction
         self.wizard_pop_up.focus_force()        # Set input focus to the popup
@@ -61,6 +61,8 @@ class setup_wizard():
         ctk.CTkButton(self.frame, text="Start", command=self.check_backlash_main).pack(side=ctk.BOTTOM)
         
     def check_backlash_main(self):
+        self.min = 0
+        self.max =50
         self.current = 0 
         self.increment = 10
         for w in self.frame.winfo_children():
@@ -68,73 +70,61 @@ class setup_wizard():
             
         self.port_manager.send_command("s7 0")
         self.port_manager.send_command("s8 0")    
-        self.port_manager.send_command("F-50")
+        self.port_manager.send_command("F-"+str(self.max))
         
             
         ctk.CTkLabel(self.frame, text="Setup turtlebot: Backlash", font=self.title_font).pack(pady=1)
-        ctk.CTkLabel(self.frame, text="Press forward to move the turtlebot forward, if you see it move press next").pack(pady=10)
+        ctk.CTkLabel(self.frame, text="Press moved if the turtlebot moved forward, if not, ress no difference").pack(pady=10)
         
-        self.backlash_label = ctk.CTkLabel(self.frame, text=self.current)
+        self.backlash_label = ctk.CTkLabel(self.frame, text=self.min)
         self.backlash_label.pack()
         
         self.button_frame = ctk.CTkFrame(self.frame, fg_color="transparent")
         self.button_frame.pack(side=ctk.BOTTOM)
         
-        ctk.CTkButton(self.button_frame, text="Forward", command=self.backlash_forward).pack(side=ctk.LEFT)
-        ctk.CTkButton(self.button_frame, text="Next", command=self.backlash_next_increment).pack(side=ctk.LEFT, pady=3, padx=3)
-        self.back_button = ctk.CTkButton(self.button_frame, text="Back", command=self.backlash_last_increment, state=ctk.DISABLED)
+        ctk.CTkButton(self.button_frame, text="No difference", command=self.backlash_forward).pack(side=ctk.LEFT)
+        ctk.CTkButton(self.button_frame, text="Moved", command=self.backlash_moved).pack(side=ctk.LEFT, pady=3, padx=3)
+        self.back_button = ctk.CTkButton(self.button_frame, text="Restart", command=self.check_backlash_main, state=ctk.DISABLED)
         self.back_button.pack(side=ctk.LEFT)
+        self.backlash_forward()
         
         
     def backlash_forward(self):
-        print(self.increment)
-        self.current = round(self.current + self.increment,2)
-        self.port_manager.send_command("F"+str(self.increment))
-        print("F:", self.current, self.increment)
-        self.backlash_label.configure(text=self.current)
-        
-    def backlash_last_increment(self):
-        print("BB", self.current, self.increment)
-        self.increment = self.increment*5
-        self.current = self.current + self.increment
-        print("AB", self.current, self.increment)
-        if self.increment ==10:
-            print("destroy")
-            self.back_button.configure(state=ctk.DISABLED)
-        self.backlash_next_increment()
-        
-        
-        
-    def backlash_next_increment(self):
-        if self.increment/5<0.01:
-            #set backlash
-            backlash = self.current-self.increment
-            self.port_manager.send_command("o")
-            self.port_manager.send_command("s7 "+str(backlash))
-            self.port_manager.send_command("s8 "+str(backlash))
-            self.settings.update({"BacklashL": backlash})
-            self.settings.update({"BacklashR": backlash})
-            print(self.settings)
-            self.check_wheel_diameter()
-        
+        self.current = round(self.current+self.increment, 5)
+        if self.current>=self.max:
+            self.end_backlash()
         else:
-            #print(self.back_button in self.frame.winfo_children())
-            
-            if self.current>0:
-                self.port_manager.send_command("F-"+str(self.current))
-                self.current = self.current - self.increment
-            else:
-                self.current = self.current - self.increment
-                self.port_manager.send_command("F"+str(self.current))
-            
-            self.increment = self.increment/5
-            print("N:", self.current, self.increment)
-            
-            if self.increment <10:
-                self.back_button.configure(state=ctk.NORMAL)
+            self.port_manager.send_command("F"+str(self.current))
+            print("F:", self.min, self.increment, self.max)
             self.backlash_label.configure(text=self.current)
             
-    
+        
+        
+    def backlash_moved(self):
+        self.min = round(self.current-self.increment, 5)
+        
+        self.port_manager.send_command("F-"+str(self.increment))
+        
+        self.max = self.current
+        self.current = self.min
+        self.increment = round((self.increment/5), 5)
+        print("N:", self.min, self.increment, self.max)
+            
+        if self.increment <10:
+            self.back_button.configure(state=ctk.NORMAL)
+        if self.increment<0.0001:
+            self.end_backlash()
+        self.backlash_label.configure(text=self.min)
+        self.backlash_forward()
+            
+    def end_backlash(self):
+        self.port_manager.send_command("o")
+        self.port_manager.send_command("s7 "+str(self.max))
+        self.port_manager.send_command("s8 "+str(self.max))
+        self.settings.update({"BacklashL": self.max})
+        self.settings.update({"BacklashR": self.max})
+        print(self.settings)
+        self.check_wheel_diameter()
     
     
     def check_wheel_diameter(self):
@@ -176,7 +166,7 @@ class setup_wizard():
         # reset motor speed (uS per step, 1100 fastest @ 7Volt)
         self.port_manager.send_command("s1 1100")
         self.port_manager.send_command("o")
-        time.sleep(15)
+        #time.sleep(15)
         
         #we assume it will be straight "enough" as the wheels are most likely printed at the same time so have been effected equally
         for w in self.bottom_frame.winfo_children():
@@ -194,11 +184,12 @@ class setup_wizard():
         #get length
         length = self.length_input.get("0.0",ctk.END)                         #input validation    
         print(length)
-        if float(length) == 300:
-            self.check_axle_length()
-        else:
-            self.calculate_wheel_diameter(length)
-            self.draw_diameter_button()
+        if self.validate_input(length):
+            if float(length) == 300:
+                self.check_axle_length()
+            else:
+                self.calculate_wheel_diameter(length)
+                self.draw_diameter_button()
             
     def calculate_wheel_diameter(self, length):
         #we have required distance dr and travelled distance dt
@@ -230,7 +221,7 @@ class setup_wizard():
         
             
         ctk.CTkLabel(self.frame, text="Setup turtlebot axle", font=self.title_font).pack(pady=1)
-        ctk.CTkLabel(self.frame, text="Press Draw to draw two circles. Measure the distance of overlap/gap then input the values. If a gap put \"-\" before the number").pack(pady=10)
+        ctk.CTkLabel(self.frame, text="Press Draw to draw two circles. Measure the distance of overlap/gap then input the values. \n If a gap put \"-\" before the number").pack(pady=10)
         
         ctk.CTkButton(self.frame, text="Draw", command=self.draw_for_axle).pack()
         
@@ -240,11 +231,13 @@ class setup_wizard():
         ctk.CTkLabel(length_frame, text="Length:", font=("Roboto", 12)).pack(side=ctk.LEFT)
         self.length_input = ctk.CTkTextbox(length_frame, height=50)
         self.length_input.pack(side=ctk.LEFT, padx=2)
-        ctk.CTkLabel(length_frame, text="Length2:", font=("Roboto", 12)).pack(side=ctk.LEFT)
-        self.length_input2 = ctk.CTkTextbox(length_frame, height=50)
+        length_frame2 = ctk.CTkFrame(self.frame, fg_color="transparent")
+        length_frame2.pack()
+        ctk.CTkLabel(length_frame2, text="Length2:", font=("Roboto", 12)).pack(side=ctk.LEFT)
+        self.length_input2 = ctk.CTkTextbox(length_frame2, height=50)
         self.length_input2.pack(side=ctk.LEFT, padx=2)
-        ctk.CTkLabel(length_frame, text="mm").pack(side=ctk.LEFT)
-        ctk.CTkButton(self.frame, text="Done").pack(side=ctk.BOTTOM)
+        ctk.CTkLabel(length_frame2, text="mm").pack(side=ctk.LEFT)
+        ctk.CTkButton(self.frame, text="Done", command=self.calculate_axle_length).pack(side=ctk.BOTTOM)
         
     def draw_for_axle(self):
         #Axle length simple calibration test turn using only one wheel, if the wheel is calibrated any error will be due to the wheel spacing
@@ -269,7 +262,7 @@ class setup_wizard():
         self.port_manager.send_command("D")
 
     #turn for a circle: ((2*axle)/wheel diameter)*steps for rotation
-        self.port_manager.send_command("l "+str(round(((2*float(self.settings.get("Axle")))/float(self.settings.get("wheelL")))*4096),5))
+        self.port_manager.send_command("l "+str(round((((2*float(self.settings.get("Axle")))/float(self.settings.get("wheelL")))*4096),5)))
 
         self.port_manager.send_command("U")
         
@@ -281,7 +274,7 @@ class setup_wizard():
         self.port_manager.send_command("D")
     #r ((2*79.6)/53.02)*4096
     #r 12299
-        self.port_manager.send_command("r "+str(round(((2*float(self.settings.get("Axle")))/float(self.settings.get("wheelR")))*4096),5))
+        self.port_manager.send_command("r "+str(round((((2*float(self.settings.get("Axle")))/float(self.settings.get("wheelR")))*4096),5)))
         self.port_manager.send_command("U")
 
     # turn off motors
@@ -306,20 +299,35 @@ class setup_wizard():
         print("calc")
         self.gap=False #remove
         #get length
-        length = float(self.length_input.get("0.0",ctk.END))
+        length = self.length_input.get("0.0",ctk.END)
         #get length2
-        length2 = float(self.length_input2.get("0.0",ctk.END))
+        length2 = self.length_input2.get("0.0",ctk.END)
+        #check input is a valid number
+        if self.validate_input(length) and self.validate_input(length2):
     
-        avg_len = (length+length2)/2
+            avg_len = (float(length)+float(length2))/2
     
-        #get expected wheel diameter
-        expected_axle = self.settings.get("Axle")
+            #get expected wheel diameter
+            expected_axle = self.settings.get("Axle")
     
-        actual_axle = round(expected_axle -(avg_len/2*math.pi), 3)
+            actual_axle = round(expected_axle -(avg_len/2*math.pi), 3)
     
-        #set values for axle
-        self.settings.update({"Axle": actual_axle})
-        print(self.settings)
+            #set values for axle
+            self.settings.update({"Axle": actual_axle})
+            print(self.settings)
+        
+    def validate_input(self, length):
+        length = length.replace("\n", "")
+        length_numeric = length.replace("-","")
+        if len(length)==0:
+            tk.messagebox.showerror("Wrong input", "Please fill in all values") 
+            return False
+        elif not length_numeric.replace(".", "").isnumeric():
+            print(length)
+            tk.messagebox.showerror("Wrong input", "Please enter a valid number") 
+            return False
+        else:
+            return True
     
     def save_all(self):
         self.port_manager.send_command("s2 "+str(self.settings.get("wheelL")))
