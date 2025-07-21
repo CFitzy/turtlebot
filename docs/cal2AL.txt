@@ -1,0 +1,58 @@
+// Axle length simple calibration test
+// turn using only one wheel, if the wheel is calibrated any error will be due to 
+// the wheel spacing
+//--------
+// PART 1
+//--------
+// slow down
+s1 3000
+// remove backlash compensation settings
+s7 0
+s8 0
+
+// if Ad is Axle length (diameter) and Wd is wheel diameter
+// then circumference is Ac = 2*Ad*PI
+// Wheel circumference Wc = Wd*PI 
+// so we need Ac/Wc rotation of the wheel
+// or (with 4096 steps per rotation) Ac/Wc*4096
+// so Ws = Ad/Wd
+
+U
+// Take up backlash
+l 200
+
+D
+//l ((2*79.6)/53.02)*4096
+//l ((2*80)/53.18)*4096
+//l 12299
+//l ((2*79.04)/53.18)*4096
+l 12021
+U
+
+F 30
+
+//Take up backlash
+r 200
+
+D
+//r ((2*79.6)/53.02)*4096
+//r 12299
+r 12021
+U
+
+// turn off motors
+F10
+s1 1100
+
+// the circle ends either overlap or have a gap.
+// if they overlap reduce the axle length setting by 2mm until there is a gap 
+// (a gap is easier to measure)
+// to adjust axle take the average axle circumference error (Ace) of the two directions 
+// using the set Ad (axle length)
+// axle circumference is Ac = 2*Ad*PI
+// the percentage error Ace = (Ac+Ace)/Ac
+// so the axle is longer than the code thinks (calculated c is too small)
+// new axle length is Ace*Ad.
+
+// 79.6*(((2*79.6*3.14)+3)/(2*79.6*3.14))
+//80*(((2*80*3.14)-9)/(2*80*3.14))

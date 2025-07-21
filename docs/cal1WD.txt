@@ -1,0 +1,30 @@
+// Wheel Diameter simple calibration test 
+//
+// slow down
+s1 4000
+// remove backlash compensation settings
+s7 0
+s8 0
+// take up backlash
+F10
+// lower pen
+D
+// move 20cm
+F300
+u
+// reset motor speed (uS per step, 1100 fastest @ 7Volt)
+s1 1100
+
+// we have 
+// required distance dr and 
+// travelled distance dt
+// error distance de = dt-dr (positive if travels too far)
+// 
+// circumference of wheel, Wc= PI*Wd
+// wheel rotations = dr/Wc
+// percentage error = dt/dr
+// since wheel diameter is proportional to circumference
+//  we need to change the wheel diameter by that amount
+// adjusted wheel diameter = dt/dr*Wd
+// eg 299/300*50
+
