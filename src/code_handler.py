@@ -4,10 +4,10 @@ Created on Mon Jun 16 13:50:23 2025
 
 @author: cmf6
 """
-import re
+
 import customtkinter as ctk
 from time import sleep
-import tom as t
+import user_turtle as t
 
 class Code_Handler():
     def __init__(self, port_manager):
@@ -20,10 +20,10 @@ class Code_Handler():
             text_output.delete(1.0, ctk.END)
             text_output.configure(state="disabled")
             turtle.paused = False
-            tom = t.Tom(self.port_manager, turtle, text_output)
+            turtle = t.User_Turtle(self.port_manager, turtle, text_output)
             #run compile mode
             exec(code_input)
-            tom.find_simulation_scale()
+            turtle.find_simulation_scale()
             #run run
             exec(code_input)
             

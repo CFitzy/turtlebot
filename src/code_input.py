@@ -19,7 +19,7 @@ class Code_Input():
         #ctk.CTkLabel(master=self.code_frame, text="Enter code:").pack(side=ctk.TOP)  
         # Text input (size by line not pixel)
         self.textbox = scrolledtext.ScrolledText(master=self.code_frame, font=("Helivetica, 14"), yscrollcommand=True, undo=True)
-        self.set_code("tom.down()\ntom.forward(20)\ntom.right(90)\ntom.up()\ntom.forward(20)")
+        self.set_code("turtle.down()\nturtle.forward(20)\nturtle.right(90)\nturtle.up()\nturtle.forward(20)")
         #self.textbox.pack(side=ctk.TOP, pady=5, expand=True, fill=ctk.BOTH)    
         self.textbox.place(x=0, y=0, relwidth=1, relheight=1)
         
