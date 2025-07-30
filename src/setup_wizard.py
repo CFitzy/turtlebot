@@ -257,7 +257,7 @@ class setup_wizard():
         #get expected wheel diameter
         expected_diameter = self.settings.get("wheelL")
         
-        actual_diameter = (float(length)/300)*float(expected_diameter)
+        actual_diameter = round((float(length)/300)*float(expected_diameter),3)
         
         #set values for diameters
         self.port_manager.send_command("s2 "+str(actual_diameter))
@@ -276,7 +276,7 @@ class setup_wizard():
         self.make_title("Setup turtlebot: Axle")
         self.make_paragraph("Press Draw to draw two circles. \nMeasure the distance of overlap/gap then input the values. \n(Make sure you recentre the turtlebot)")
         self.image_frame = ctk.CTkFrame(self.frame, fg_color="transparent")
-        self.image_frame.place(relx=0.5, rely=0.4, anchor=ctk.CENTER)
+        self.image_frame.place(relx=0.5, rely=0.5, anchor=ctk.CENTER)
         self.set_axle_image()
         self.axle_button = self.make_button(self.frame, "Draw", self.draw_for_axle)
         
@@ -289,9 +289,10 @@ class setup_wizard():
             ctk.CTkLabel(self.image_frame, image=self.axle_images[0], text="").pack()
             self.axle_image_first = False
         else:
-            ctk.CTkLabel(self.image_frame, text="If a gap is formed, \nwrite the number as a negative", font=("Roboto", 12)).pack(side=ctk.LEFT,padx=5)
+            ctk.CTkLabel(self.image_frame, text="If a gap is formed, \nwrite the number as a negative", font=("Roboto", 13)).pack(side=ctk.LEFT,padx=5)
             ctk.CTkLabel(self.image_frame, image=self.axle_images[1], text="").pack(side=ctk.LEFT,padx=20)
             ctk.CTkLabel(self.image_frame, image=self.axle_images[2], text="").pack(side=ctk.LEFT, padx=20)
+            self.axle_image_first = True
         
         
         
@@ -422,7 +423,9 @@ class setup_wizard():
         self.port_manager.send_command("s4 "+str(self.settings.get("Axle")))
         
         self.port_manager.send_command("s7 "+str(self.settings.get("BacklashL")))
-        self.port_manager.send_command("s8 "+str(self.settings.get("BacklashR")))               #self.port_manager.send_command("save")
+        self.port_manager.send_command("s8 "+str(self.settings.get("BacklashR")))               
+        #save the new settings
+        self.port_manager.send_command("save")
         
         for w in self.frame.winfo_children():
             w.destroy()
