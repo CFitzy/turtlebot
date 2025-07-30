@@ -1,4 +1,4 @@
-six_var = 10
+six_var = 15
 
 turtle.left(90)
 turtle.forward(2*six_var)

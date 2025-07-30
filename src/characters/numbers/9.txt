@@ -1,4 +1,4 @@
-nine_var = 10
+nine_var = 15
 turtle.down()
 turtle.forward(nine_var)
 turtle.left(90)

@@ -8,6 +8,7 @@ Created on Wed Jun 25 16:23:46 2025
 import customtkinter as ctk
 import tkinter as tk
 import glob
+import re
 
 
 class File_Handler():
@@ -64,9 +65,15 @@ class File_Handler():
     
     def get_available_inserts(self, shape_type):
         path = "./characters/"+shape_type+"/*.txt"
-        stuff = glob.glob(path)
-        print(stuff)
-        return stuff
+        #get all the filepaths in the folder
+        file_paths = glob.glob(path)
+        filenames = []
+        for f in file_paths:
+            #put * into a match object
+            filename= re.search("./characters/"+shape_type+"\\\\(.*).txt", f)
+            #retrieve from match object and place just name into filenames list
+            filenames.append(filename.group(1))
+        return filenames
             
     #load a code file
     def load_insert_text(self, value, number=False, letter=False, shape=False):

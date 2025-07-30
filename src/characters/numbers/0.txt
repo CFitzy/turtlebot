@@ -1,4 +1,4 @@
-zero_var = 20
+zero_var = 15
 
 turtle.left(90)
 turtle.down()

@@ -1,4 +1,4 @@
-five_var = 20
+five_var = 15
 turtle.down()
 turtle.forward(five_var)
 turtle.left(90)

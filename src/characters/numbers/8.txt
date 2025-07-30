@@ -1,4 +1,4 @@
-eight_var = 10
+eight_var = 15
 
 turtle.left(90)
 turtle.down()

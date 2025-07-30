@@ -37,12 +37,12 @@ class Top_Menu():
         
         
   
-        print(file_handler.get_available_inserts("numbers"))
+        #print(file_handler.get_available_inserts("numbers"))
         insert_button.menu = tk.Menu(insert_button, font=("12"))
         insert_button["menu"] = insert_button.menu
         menu_num = tk.Menu(insert_button)
         insert_button.menu.add_cascade(menu=menu_num, label='Number')
-        numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        numbers = file_handler.get_available_inserts("numbers")
         for i in numbers:
             print(i)
             menu_num.add_command(label=str(i), command= lambda i=i: file_handler.load_insert_text(value=i, number=True))

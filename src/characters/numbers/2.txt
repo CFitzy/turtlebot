@@ -1,4 +1,4 @@
-two_var = 20
+two_var = 15
 
 turtle.left(90)
 turtle.forward(2*two_var)
