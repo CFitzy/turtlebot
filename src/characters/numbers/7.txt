@@ -1,0 +1,12 @@
+seven_var = 20
+turtle.up()
+turtle.left(90)
+turtle.forward(2*seven_var)
+turtle.down()
+turtle.right(90)
+turtle.forward(seven_var)
+turtle.right(90)
+turtle.forward(2*seven_var)
+turtle.up()
+turtle.left(90)
+turtle.forward(seven_var)

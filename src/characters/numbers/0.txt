@@ -1,0 +1,14 @@
+zero_var = 20
+
+turtle.left(90)
+turtle.down()
+turtle.forward(2*zero_var)
+turtle.right(90)
+turtle.forward(zero_var)
+turtle.right(90)
+turtle.forward(2*zero_var)
+turtle.right(90)
+turtle.forward(zero_var)
+turtle.up()
+turtle.right(180)
+turtle.forward(2*zero_var)

@@ -1,0 +1,16 @@
+one_var = 20
+turtle.up()
+turtle.left(90)
+turtle.forward(1.75*one_var)
+turtle.down()
+turtle.right(60)
+turtle.forward(0.5*one_var)
+turtle.right(120)
+turtle.forward(2*one_var)
+turtle.up()
+turtle.left(90)
+turtle.forward(one_var)
+
+
+
+

@@ -7,12 +7,14 @@ Created on Wed Jun 25 16:23:46 2025
 
 import customtkinter as ctk
 import tkinter as tk
+import glob
 
 
 class File_Handler():
-    def __init__(self, get_text, set_text):
+    def __init__(self, get_text, set_text, insert_text):
         self.set_text = set_text
         self.get_text = get_text
+        self.insert_text  = insert_text
         
     #load a code file
     def load(self):
@@ -57,3 +59,39 @@ class File_Handler():
                 outfile.write(self.get_text())
         except:
             print("error saving file")
+            
+            
+    
+    def get_available_inserts(self, shape_type):
+        path = "./characters/"+shape_type+"/*.txt"
+        stuff = glob.glob(path)
+        print(stuff)
+        return stuff
+            
+    #load a code file
+    def load_insert_text(self, value, number=False, letter=False, shape=False):
+        #pick file
+        print("load")
+        
+        try:
+        
+            if number:
+                folder = "numbers"
+            elif letter:
+                folder = "letters"
+            elif shape:
+                folder = "shapes"
+                
+            path = "./characters/"+folder+"/"+str(value)+".txt"
+            print(path)   
+            #read from file
+            with open(path, "r") as infile:
+                contents=infile.read()
+            
+            print("contents: ",contents)
+        
+            #set to set_text
+            self.insert_text(contents)
+        
+        except:
+            print("error loading file")

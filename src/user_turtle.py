@@ -28,9 +28,12 @@ class User_Turtle():
         
     def forward(self, number):
         if self.compile_mode:
-            self.commands_list.append("F"+str(number))
+            self.commands_list.append("F"+str(int(number)))
+            
         else: 
-            print(number)
+            print("forward:",number)
+            print(round(number))
+            number = int(round(number))
             self.turtle_sim.run_code("turtle.forward("+str(number)+")", self.text_output)
             if self.port_manager.allow_writing:
                 self.port_manager.send_command("F"+str(number))

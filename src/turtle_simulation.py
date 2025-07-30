@@ -70,8 +70,6 @@ class Turtle_Simulation():
                 output_label.configure(state="disabled")
                 output_label.see(ctk.END)
                 self.stop_turtle()
-        else:
-            raise Exception("Paused")
             
             
     def test_code(self, code, output_label):

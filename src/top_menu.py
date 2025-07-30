@@ -13,28 +13,43 @@ import sys
 
 
 class Top_Menu():
-    def __init__(self, root, port_manager, top_bar_frame, connection_frame, change_textsize, set_text, get_text):
+    def __init__(self, root, port_manager, top_bar_frame, connection_frame, change_textsize, set_text, get_text, insert_text):
         #has to be tkinter canvas as customtkinter works coordinates based but turtle needs len
         
-        file_handler = fh.File_Handler(get_text, set_text)
+        file_handler = fh.File_Handler(get_text, set_text, insert_text)
         
         self.port_manager = port_manager
         self.up = 0.5 #stuck till can reliabily move less
         self.down=0.3
         setup_wizard = sw.setup_wizard(port_manager)
         #menubar = tk.Menu(top_bar_frame)
+        root.option_add('*tearOff', False) # gets rid of ---- at start of menus
         file_button = self.make_top_menu_button(top_bar_frame, "File")
+        insert_button = self.make_top_menu_button(top_bar_frame, "Insert")
         settings_button  = self.make_top_menu_button(top_bar_frame, "Settings")
         
         
-        file_button.menu = tk.Menu(file_button, tearoff=0, font=("12"))
+        file_button.menu = tk.Menu(file_button, font=("12"))
         file_button["menu"] = file_button.menu
         
         file_button.menu.add_command(label="Save", command=lambda: file_handler.save())
         file_button.menu.add_command(label="Load", command=lambda: file_handler.load())
         
         
-        settings_button.menu = tk.Menu(settings_button, tearoff=False, font=("12"))
+  
+        print(file_handler.get_available_inserts("numbers"))
+        insert_button.menu = tk.Menu(insert_button, font=("12"))
+        insert_button["menu"] = insert_button.menu
+        menu_num = tk.Menu(insert_button)
+        insert_button.menu.add_cascade(menu=menu_num, label='Number')
+        numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        for i in numbers:
+            print(i)
+            menu_num.add_command(label=str(i), command= lambda i=i: file_handler.load_insert_text(value=i, number=True))
+        
+        
+        #Setttings menu and buttons to select a port, open the setup wizard, pick the pen height, and pick the text size
+        settings_button.menu = tk.Menu(settings_button, font=("12"))
         settings_button["menu"] = settings_button.menu
         
         settings_button.menu.add_command(label="Select port", command=self.make_connection_dropdown)
@@ -46,20 +61,13 @@ class Top_Menu():
         
         menu_font = tk.Menu(settings_button)
         settings_button.menu.add_cascade(menu=menu_font, label='Font size')
-        #if in for loop will always default to last size
-        menu_font.add_radiobutton(label=str(8)+" px", command=lambda: change_textsize(8))
-        menu_font.add_radiobutton(label=str(10)+" px", command=lambda: change_textsize(10))
-        menu_font.add_radiobutton(label=str(11)+" px", command=lambda: change_textsize(11))
-        menu_font.add_radiobutton(label=str(12)+" px", command=lambda: change_textsize(12))
-        menu_font.add_radiobutton(label=str(14)+" px", command=lambda: change_textsize(14))
-        menu_font.add_radiobutton(label=str(16)+" px", command=lambda: change_textsize(16))
-        menu_font.add_radiobutton(label=str(18)+" px", command=lambda: change_textsize(18))
-        menu_font.add_radiobutton(label=str(20)+" px", command=lambda: change_textsize(20))
-        menu_font.add_radiobutton(label=str(24)+" px", command=lambda: change_textsize(24))
-        menu_font.add_radiobutton(label=str(28)+" px", command=lambda: change_textsize(28))
-        menu_font.add_radiobutton(label=str(32)+" px", command=lambda: change_textsize(32))
-        menu_font.add_radiobutton(label=str(36)+" px", command=lambda: change_textsize(36))
+        
+        fonts = [8, 10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36]
+        for i in fonts:
+            print(i)
+            menu_font.add_radiobutton(label=str(i)+" px", command=lambda i=i: change_textsize(i))
         menu_font.invoke(5)
+        
         
         ip.Info_Page(top_bar_frame)
             

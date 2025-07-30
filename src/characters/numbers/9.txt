@@ -1,0 +1,25 @@
+nine_var = 10
+turtle.down()
+turtle.forward(nine_var)
+turtle.left(90)
+turtle.forward(2*nine_var)
+turtle.left(90)
+turtle.forward(nine_var)
+turtle.left(90)
+turtle.forward(nine_var)
+turtle.left(90)
+turtle.forward(nine_var)
+turtle.up()
+turtle.right(90)
+turtle.forward(nine_var)
+turtle.left(90)
+turtle.forward(nine_var)
+turtle.up()
+
+
+
+
+
+
+
+

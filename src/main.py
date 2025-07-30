@@ -49,7 +49,8 @@ class Main():
                                           top_frame,connection_layout, 
                                           self.change_textsize,
                                           self.code_input.set_code,
-                                          self.code_input.get_code
+                                          self.code_input.get_code,
+                                          self.code_input.insert_code
                                           )
          
         self.right_frame.pack(side=ctk.LEFT, fill=ctk.Y)
@@ -89,6 +90,7 @@ class Main():
             
         self.code_input.change_textsize(size)
         self.text_output.configure(font=("Helvetica", size))
+        print(size)
 
 
     #update window to meet current size requirements (for user experience the window is recommeded not to be smaller than (600,450))
