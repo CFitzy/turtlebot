@@ -28,6 +28,8 @@ class Main():
         #set logo image
         root.iconbitmap('./graphics/turtle_logo.ico', default='./graphics/turtle_logo.ico')
         
+        
+        
 
         
         top_frame = ctk.CTkFrame(root, fg_color="#007D02", corner_radius=0)

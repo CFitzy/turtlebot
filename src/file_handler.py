@@ -73,21 +73,17 @@ class File_Handler():
             filename= re.search("./characters/"+shape_type+"\\\\(.*).txt", f)
             #retrieve from match object and place just name into filenames list
             filenames.append(filename.group(1))
+        print("f", filenames)
         return filenames
-            
+      
+        #insert_types = ["numbers", "letters", "shapes"]
     #load a code file
-    def load_insert_text(self, value, number=False, letter=False, shape=False):
+    def load_insert_text(self, value, folder):
         #pick file
         print("load")
         
         try:
         
-            if number:
-                folder = "numbers"
-            elif letter:
-                folder = "letters"
-            elif shape:
-                folder = "shapes"
                 
             path = "./characters/"+folder+"/"+str(value)+".txt"
             print(path)   

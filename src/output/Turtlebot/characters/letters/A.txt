@@ -1,0 +1,21 @@
+a_var = 20
+
+turtle.right(-70)
+turtle.down()
+turtle.forward(3*a_var)
+turtle.right(140)
+turtle.forward(1.5*a_var)
+turtle.up()
+turtle.right(110)
+turtle.forward(a_var)
+turtle.right(180)
+turtle.down()
+turtle.forward(a_var)
+turtle.right(70)
+turtle.forward(1.5*a_var)
+turtle.up()
+turtle.left(70)
+turtle.forward(a_var)
+
+
+

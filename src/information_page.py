@@ -32,8 +32,8 @@ class Info_Page():
         self.pop_up.attributes("-topmost", True)
         self.pop_up.focus_force() 
         self.pop_up.title("About the Turtlebot")
-        #set logo image
-        self.pop_up.iconbitmap('./graphics/turtle_logo.ico')
+        #reset logo image
+        self.pop_up.after(200, lambda :self.pop_up.iconbitmap('./graphics/turtle_logo.ico'))
         self.pop_up.geometry("500x500")
         
         html = HTMLScrolledText(self.pop_up, html=RenderHTML('html_info/information_page.html'), state="disabled")

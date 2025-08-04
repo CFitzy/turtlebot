@@ -67,6 +67,8 @@ class setup_wizard():
         self.wizard_pop_up.lift()               #make sure pop up is above other window
         self.wizard_pop_up.geometry(str(self.pop_up_size)+"x"+str(self.pop_up_size))
         
+        self.wizard_pop_up.after(200, lambda :self.wizard_pop_up.iconbitmap('./graphics/turtle_logo.ico'))
+        
         self.frame = ctk.CTkFrame(self.wizard_pop_up, fg_color="transparent")
         self.frame.pack(expand=True, fill=ctk.BOTH)
         self.make_title("Setup turtlebot dimensions")
@@ -257,7 +259,7 @@ class setup_wizard():
         #get expected wheel diameter
         expected_diameter = self.settings.get("wheelL")
         
-        actual_diameter = round((float(length)/300)*float(expected_diameter),3)
+        actual_diameter = round((float(length)/300)*float(expected_diameter), 6)
         
         #set values for diameters
         self.port_manager.send_command("s2 "+str(actual_diameter))
@@ -392,7 +394,7 @@ class setup_wizard():
                 expected_axle = float(self.settings.get("Axle"))
     
                 #actual_axle = round(expected_axle -(avg_len/2*math.pi), 3)
-                actual_axle = round(expected_axle*(((2*expected_axle*math.pi)-avg_len)/(2*expected_axle*math.pi)), 5)     
+                actual_axle = round(expected_axle*(((2*expected_axle*math.pi)-avg_len)/(2*expected_axle*math.pi)), 6)     
     
                 #set values for axle
                 self.settings.update({"Axle": actual_axle})

@@ -36,16 +36,19 @@ class Top_Menu():
         file_button.menu.add_command(label="Load", command=lambda: file_handler.load())
         
         
-  
-        #print(file_handler.get_available_inserts("numbers"))
+        insert_types = ["numbers", "letters", "shapes"]
+        
         insert_button.menu = tk.Menu(insert_button, font=("12"))
         insert_button["menu"] = insert_button.menu
-        menu_num = tk.Menu(insert_button)
-        insert_button.menu.add_cascade(menu=menu_num, label='Number')
-        numbers = file_handler.get_available_inserts("numbers")
-        for i in numbers:
-            print(i)
-            menu_num.add_command(label=str(i), command= lambda i=i: file_handler.load_insert_text(value=i, number=True))
+        
+        
+        for it in insert_types:
+            menu_ins = tk.Menu(insert_button)
+            insert_button.menu.add_cascade(menu=menu_ins, label=it[0].capitalize()+it[1:])
+            inserts = file_handler.get_available_inserts(it)
+            for i in inserts:
+                print(it, i)
+                menu_ins.add_command(label=str(i), command= lambda i=i, it=it: file_handler.load_insert_text(i, it))
         
         
         #Setttings menu and buttons to select a port, open the setup wizard, pick the pen height, and pick the text size
@@ -106,6 +109,9 @@ class Top_Menu():
         self.connection_pop_up.focus_force()        # Set input focus to the popup
         self.connection_pop_up.lift()               #make sure pop up is above other window
         
+        #stops icon being overwritten by the default (overwrites the overwrite)
+        self.connection_pop_up.after(200, lambda :self.connection_pop_up.iconbitmap('./graphics/turtle_logo.ico'))
+        
         ctk.CTkLabel(self.connection_pop_up, text="Select a port below").pack()
         
         first_option, port_names = self.port_manager.get_port_names()
@@ -142,7 +148,7 @@ class Top_Menu():
         self.pop_up.grab_set()           # Stop other window interaction
         self.pop_up.focus_force()        # Set input focus to the popup
         self.pop_up.lift()               #make sure pop up is above other window
-        self.pop_up.iconbitmap('./graphics/turtle_logo.ico')
+        self.pop_up.after(201, lambda :self.pop_up.iconbitmap('./graphics/turtle_logo.ico'))
         
         down_label = ctk.CTkLabel(self.pop_up, text="Adjust pen height until it is just on the paper")
         down_label.pack(padx=5, pady=5)
