@@ -71,27 +71,7 @@ class Turtle_Simulation():
                 output_label.see(ctk.END)
                 self.stop_turtle()
             
-            
-    def test_code(self, code, output_label):
-        #try compile, display errors on label
-        try:
-            #added, otherwise doesn't know what the turtle is
-            code_turtle = "turtle = self.terry \n"+code
-            #can't throw name errors
-            compile(code_turtle, 'test', 'exec')
-            self.paused=False
-        except SyntaxError as e:
-            #-1 as automatically starts at 2
-            display = "Syntax Error at line "+str(e.lineno-1) +str(e.msg)
-            output_label.configure(state="normal")
-            output_label.insert(ctk.END, text="\n"+display)
-            output_label.configure(state="disabled")
-            output_label.see(ctk.END)
-        except Exception as e:
-            output_label.configure(state="normal")
-            output_label.insert(ctk.END, text="\n"+e)
-            output_label.configure(state="disabled")
-            output_label.see(ctk.END)
+    
             
     def stop_turtle(self):
         self.paused =True

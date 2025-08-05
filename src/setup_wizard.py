@@ -65,6 +65,7 @@ class setup_wizard():
         self.wizard_pop_up.grab_set()           # Stop other window interaction
         self.wizard_pop_up.focus_force()        # Set input focus to the popup
         self.wizard_pop_up.lift()               #make sure pop up is above other window
+        self.wizard_pop_up.title("Setup Wizard")
         self.wizard_pop_up.geometry(str(self.pop_up_size)+"x"+str(self.pop_up_size))
         
         self.wizard_pop_up.after(200, lambda :self.wizard_pop_up.iconbitmap('./graphics/turtle_logo.ico'))

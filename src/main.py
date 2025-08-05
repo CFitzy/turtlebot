@@ -120,7 +120,7 @@ class Main():
 
         
     def clear_text(self):
-        result = tk.messagebox.askquestion("Clear confirmation", "Are you sure you want to clear the program", )
+        result = tk.messagebox.askquestion("Clear confirmation", "Are you sure you want to clear the program?", )
         if result=="yes":
             self.code_input.clear()
             self.text_output.configure(state="normal")

@@ -7,19 +7,11 @@ Created on Fri Jul 11 13:47:59 2025
 import customtkinter as ctk
 
 class User_Turtle():
-    def __init__(self, port_manager, turtle_sim, text_output):
-        self.code_dictionary = {
-            "turtle.forward": "F",  #will need more
-            "turtle.right": "T",
-            "turtle.left": "T-",
-            "print":"=",
-            "turtle.up": "U",
-            "turtle.down": "D"
-            }       
+    def __init__(self, port_manager, turtle_sim, text_output):      
         self.port_manager = port_manager
         self.turtle_sim = turtle_sim
         self.text_output = text_output   
-        self.compile_mode =True                           #compile mode to work out scaling?
+        self.compile_mode =True                           #compile mode to work out scaling
         self.commands_list = []
         
     def find_simulation_scale(self):

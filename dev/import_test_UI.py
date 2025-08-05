@@ -18,7 +18,7 @@ import customtkinter as ctk
 
 """os system executes the command visibly Errors in file give a traceback and nameerror , or no such file: file keeps running after
     Doesn't seem to like doing it in this file, fine in one without tkinter"""
-#import os 
+import os 
 #os.system('python hello_world.py')
 
 """read and exec executes the command to console Errors are major and stop execution, not in UI though
@@ -57,9 +57,10 @@ class Main():
         
         #try read and execute, display errors on label
         try:
-            with open("hello_world.py", "r") as f:
-                exec(f.read())
-                f.close()
+            os.system('python hello_world.py')
+            #with open("hello_world.py", "r") as f:
+              #  exec(f.read())
+               # f.close()
             
         except Exception as e:
             self.textbox2.configure(text=e)
