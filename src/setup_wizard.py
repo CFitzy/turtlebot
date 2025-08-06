@@ -146,14 +146,14 @@ class setup_wizard():
     def backlash_moved(self):
         self.min = round(self.current-self.increment, 5)
         
-        self.port_manager.send_command("f -"+str(self.increment))
+        self.port_manager.send_command("f -"+str(self.current))
         
         self.max = self.current
         self.current = self.min
         self.increment = round((self.increment/5),1)
         print("N:", self.min, self.increment, self.max)
             
-        if self.increment <10:
+        if self.increment <125:
             self.back_button.configure(state=ctk.NORMAL)
         if self.increment<1:
             self.end_backlash()
@@ -395,7 +395,7 @@ class setup_wizard():
                 expected_axle = float(self.settings.get("Axle"))
     
                 #actual_axle = round(expected_axle -(avg_len/2*math.pi), 3)
-                actual_axle = round(expected_axle*(((2*expected_axle*math.pi)-avg_len)/(2*expected_axle*math.pi)), 6)     
+                actual_axle = round(expected_axle-(avg_len/(2*math.pi)), 6)     
     
                 #set values for axle
                 self.settings.update({"Axle": actual_axle})
