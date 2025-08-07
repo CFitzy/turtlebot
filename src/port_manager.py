@@ -100,7 +100,7 @@ class port_manager():
                         #encode into bytes (won't compile to send otherwise)
                         out = ('OKPC').encode('utf-8')
                         print("outgoing: ", out)
-                        print(self.port.write(out))
+                        #print(self.port.write(out))
                         self.setup=True
                         self.allow_writing = False
                         in_str = ""
@@ -108,7 +108,7 @@ class port_manager():
                     if "=Hello ACK" in in_str:
                         self.allow_writing = True
                         self.connection_states.update_states(self.usb_connection, self.allow_writing)
-                    if "ACK" in in_str:
+                    if "ACK" in in_str:         #check for NACK
                         self.sent=self.sent-1
                         print("ACKED", self.sent)
                     if not self.settings_acquired:

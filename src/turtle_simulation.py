@@ -36,13 +36,16 @@ class Turtle_Simulation():
         
 
 
-    def run_code(self, code, output_label):
+    def run_code(self, code, output_label, output=None):
         min_turtle_scale = 0.1
         
         if not self.paused:
             try:
                 output_label.configure(state="normal")
-                output_label.insert(ctk.END, text=code+"\n")
+                if output:
+                    output_label.insert(ctk.END, text=output+"\n")
+                else:
+                    output_label.insert(ctk.END, text=code+"\n")
                 output_label.configure(state="disabled")
                 
                 #shrink turtle with threshold to keep turtle visible

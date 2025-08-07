@@ -108,7 +108,7 @@ class Top_Menu():
         self.connection_pop_up.grab_set()           # Stop other window interaction
         self.connection_pop_up.focus_force()        # Set input focus to the popup
         self.connection_pop_up.lift()               #make sure pop up is above other window
-        self.pop_up.title("Select a port")
+        self.connection_pop_up.title("Select a port")
         
         #stops icon being overwritten by the default (overwrites the overwrite)
         self.connection_pop_up.after(200, lambda :self.connection_pop_up.iconbitmap('./graphics/turtle_logo.ico'))

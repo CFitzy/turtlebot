@@ -5,6 +5,7 @@ Created on Fri Jul 11 13:47:59 2025
 @author: cmf6
 """
 import customtkinter as ctk
+import math
 
 class User_Turtle():
     def __init__(self, port_manager, turtle_sim, text_output):      
@@ -48,6 +49,23 @@ class User_Turtle():
             self.turtle_sim.run_code("turtle.left("+str(number)+")", self.text_output)
             if self.port_manager.allow_writing:
                 self.port_manager.send_command("T-"+str(number))
+                
+    def curve(self, arc_len, angle):      #not cir, arc dist
+        #radius= (180*arc_len)/(angle*pi)
+        radius= (180*arc_len)/(angle*math.pi)
+        if self.compile_mode:
+            #self.commands_list.append("C"+str(number)+","+str(angle))
+            print("scaling to do")
+        else: 
+            #turtle.circle(radius, extent(how much of circle does), steps=None)
+            #minus so turns right
+            self.turtle_sim.run_code("turtle.circle(-"+str(radius)+","+str(angle)+")", self.text_output, output= "turtle.curve("+str(arc_len)+","+str(angle)+")")
+            if self.port_manager.allow_writing:
+                
+                self.port_manager.send_command("C"+str(arc_len)+" "+str(angle))        
+    
+    
+    
         
     def down(self):
         if not self.compile_mode:
