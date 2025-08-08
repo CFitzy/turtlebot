@@ -325,8 +325,8 @@ class setup_wizard():
         self.port_manager.send_command("s7 0")
         self.port_manager.send_command("s8 0")
 
-    # if Ad is Axle length (diameter) and Wd is wheel diameter
-    # then circumference is Ac = 2*Ad*PI
+    # if Ar is Axle length (radius) and Wd is wheel diameter
+    # then circumference is Ac = 2*Ar*PI
     # Wheel circumference Wc = Wd*PI 
     # so we need Ac/Wc rotation of the wheel
     # or (with 4096 steps per rotation) Ac/Wc*4096
@@ -395,7 +395,8 @@ class setup_wizard():
                 expected_axle = float(self.settings.get("Axle"))
     
                 #actual_axle = round(expected_axle -(avg_len/2*math.pi), 3)
-                actual_axle = round(expected_axle-(avg_len/(2*math.pi)), 6)     
+                #actual_axle = round(expected_axle-(avg_len/(2*math.pi)), 6)     
+                actual_axle = round(expected_axle-(avg_len/(math.pi)), 6)   
     
                 #set values for axle
                 self.settings.update({"Axle": actual_axle})
