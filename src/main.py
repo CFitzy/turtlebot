@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu May 29 13:36:54 2025
-Makes UI screen so can type in python, press button to run (display on console) and display error messages on app
+Creates the main window. The application runs from this class.
 @author: cmf6
 """
 import customtkinter as ctk

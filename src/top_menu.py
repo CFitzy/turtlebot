@@ -89,7 +89,7 @@ class Top_Menu():
         button = tk.Menubutton(top_bar_frame, text=text, 
                                     background="#007D02", 
                                     activebackground="#229F24", 
-                                    font=("12"), 
+                                    font=("14"), 
                                     foreground="#FFFFFF",
                                     activeforeground="#FFFFFF",
                                     border=0

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Jun  2 14:15:39 2025
-Create place for user to input text code with syntax highlighting
+Creates place for user to input text code with syntax highlighting
 @author: cmf6
 """
 import customtkinter as ctk

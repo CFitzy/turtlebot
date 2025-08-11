@@ -31,8 +31,13 @@ class setup_wizard():
             ]
         self.axle_image_first=True
         
-    def get_settings(self, settings):
+    def get_settings(self, get_settings):
         #'wheelL 53.18\r\nwheelR 53.18\r\nAxle 79.04\r\nPenU  0.40\r\nPenD  0.30\r\nBacklashL 0\r\nBacklashR 0\r\n'
+        settings = get_settings()
+        #if no current settings, save current ones then load
+        if settings[:7] == "Invalid":
+            self.port_manager.send_command("save")
+            settings = get_settings()
         print(settings)
         split_settings = re.split(r'[ \r\n]+', settings)
         print(split_settings)
@@ -79,7 +84,7 @@ class setup_wizard():
             self.make_button(self.frame, "Close", self.wizard_pop_up.destroy)
         else:
             #get saved values
-            self.get_settings(self.port_manager.get_settings())
+            self.get_settings(self.port_manager.get_settings)
             self.make_paragraph("You will need: \n*A ruler with mm\n*A big piece of paper (A3 or bigger recommended)")
             self.make_button(self.frame, "Start", self.check_backlash_start)
         
@@ -213,10 +218,10 @@ class setup_wizard():
         
         self.port_manager.send_command("F 10")
         # lower pen
-        self.port_manager.send_command("D")
+        self.port_manager.send_command("D0.2")
         # move 30cm
         self.port_manager.send_command("F300")
-        self.port_manager.send_command("U")
+        self.port_manager.send_command("U0.6")
         # reset motor speed (uS per step, 1100 fastest @ 7Volt)
         self.port_manager.send_command("s1 1100")
         self.port_manager.send_command("o")
@@ -336,23 +341,23 @@ class setup_wizard():
     # Take up backlash
         self.port_manager.send_command("l 200")
 
-        self.port_manager.send_command("D")
+        self.port_manager.send_command("D0.2")
 
     #turn for a circle: ((2*axle)/wheel diameter)*steps for rotation
         self.port_manager.send_command("l "+str(round((((2*float(self.settings.get("Axle")))/float(self.settings.get("wheelL")))*4096))))
 
-        self.port_manager.send_command("U")
+        self.port_manager.send_command("U0.6")
         
         self.port_manager.send_command("F 30")
 
     #Take up backlash
         self.port_manager.send_command("r 200")
 
-        self.port_manager.send_command("D")
+        self.port_manager.send_command("D0.2")
     #r ((2*79.6)/53.02)*4096
     #r 12299
         self.port_manager.send_command("r "+str(round((((2*float(self.settings.get("Axle")))/float(self.settings.get("wheelR")))*4096))))
-        self.port_manager.send_command("U")
+        self.port_manager.send_command("U0.6")
 
     # turn off motors
         self.port_manager.send_command("F 30")
@@ -429,7 +434,6 @@ class setup_wizard():
         self.port_manager.send_command("s7 "+str(self.settings.get("BacklashL")))
         self.port_manager.send_command("s8 "+str(self.settings.get("BacklashR")))               
         #save the new settings
-        self.port_manager.send_command("save")
         
         for w in self.frame.winfo_children():
             w.destroy()
@@ -437,4 +441,6 @@ class setup_wizard():
         self.make_title("Setup complete")
         
         self.make_button(self.frame, "Finish", self.wizard_pop_up.destroy)
+        
+        self.port_manager.send_command("save")
         

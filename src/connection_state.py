@@ -29,6 +29,3 @@ class Connection_Show():
         else:
             self.turtle_connection.configure(fg_color="red", bg_color="#DD0000")
             
-            
-        
-    

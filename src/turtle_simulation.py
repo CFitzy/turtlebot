@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Jun  2 11:53:43 2025
-Handle the turtle simulation, running the user typed code and resets
+Handles the turtle simulation. Runs the user code given, works out turtle scale to keep in view and reset the turtle
 @author: cmf6
 """
 import turtle
-import customtkinter as ctk
-import tkinter as tk
+from tkinter import Canvas
+from customtkinter import CTkButton
+from customtkinter import TOP
+from customtkinter import END
 import re
 import math
 
@@ -15,14 +17,14 @@ class Turtle_Simulation():
         self.angle = 90
         self.size_used=[0,0,0,0]
         #has to be tkinter canvas as customtkinter works coordinates based but turtle needs len
-        self.canvas = tk.Canvas(root, width=500, height=500)
-        self.canvas.pack(side=ctk.TOP)
+        self.canvas = Canvas(root, width=500, height=500)
+        self.canvas.pack(side=TOP)
         self.screen = turtle.TurtleScreen(self.canvas)
         self.terry = turtle.RawTurtle(self.screen, shape="turtle")
         self.paused = False
         self.scale = 1
         
-        self.reset_button = ctk.CTkButton(root, 
+        self.reset_button = CTkButton(root, 
                                           text="Reset", 
                                           command=self.reset, 
                                           state="normal", 
@@ -43,9 +45,9 @@ class Turtle_Simulation():
             try:
                 output_label.configure(state="normal")
                 if output:
-                    output_label.insert(ctk.END, text=output+"\n")
+                    output_label.insert(END, text=output+"\n")
                 else:
-                    output_label.insert(ctk.END, text=code+"\n")
+                    output_label.insert(END, text=code+"\n")
                 output_label.configure(state="disabled")
                 
                 #shrink turtle with threshold to keep turtle visible
@@ -54,10 +56,14 @@ class Turtle_Simulation():
                 else:
                     self.terry.shapesize(stretch_wid=min_turtle_scale, stretch_len=min_turtle_scale, outline=1)
                 #if turtle forward resize in that direction
-                split_code = re.split(r'[()]+', code)
+                split_code = re.split(r'[(),]+', code)
                 if split_code[0] == "turtle.forward":
                   split_code[1] = float(split_code[1])*self.scale
                   code=split_code[0]+"("+str(split_code[1])+")"
+                  print(code)
+                elif split_code[0] == "turtle.circle":
+                  split_code[1] = float(split_code[1])*self.scale
+                  code=split_code[0]+"("+str(split_code[1])+","+str(split_code[2])+")"
                   print(code)
 
                     
@@ -69,9 +75,9 @@ class Turtle_Simulation():
             except Exception as e:      #compile can't catch name errors so instead catch line by line
                 #display on output
                 output_label.configure(state="normal")
-                output_label.insert(ctk.END, text="\n"+str(e))
+                output_label.insert(END, text="\n"+str(e))
                 output_label.configure(state="disabled")
-                output_label.see(ctk.END)
+                output_label.see(END)
                 self.stop_turtle()
             
     
@@ -118,6 +124,48 @@ class Turtle_Simulation():
                 #horizontal = horizontal+x
                 #vertical = vertical-y
                 #print(horizontal, vertical)
+                
+            elif line[0] == "C":
+                values = line[1:].split(",")
+                print(values)
+                curve_angle = int(values[1])
+                arc = float(values[0])
+                curve_angles = []
+                loop_range = curve_angle//90
+                if curve_angle%90 >0:
+                    loop_range=loop_range+1
+                    
+                angle_left = curve_angle
+                for i in range(0, loop_range):
+                    if angle_left>90:
+                        curve_angles.append(90)
+                        angle_left= angle_left-90
+                    else:
+                        curve_angles.append(angle_left)
+                                            
+                print("ca", curve_angles)
+                
+                for a in curve_angles:
+                    ##work out angle
+                    angle = (angle+((a/90)*45))%360
+                    
+                    #work out dist moved
+                    distance = (180*arc*math.sin(math.radians(a)))/(a*math.pi)
+                    
+                    ##work out angle
+                    print(angle, distance)
+                    
+                x = int(distance)*math.sin(math.radians(angle))
+                y = int(distance)*math.cos(math.radians(angle))
+                if x>0:
+                    pos_horizontal = pos_horizontal+x
+                else:
+                    neg_horizontal = neg_horizontal+x
+                    
+                if y>0:
+                    pos_vertical = pos_vertical-y
+                else:
+                    neg_vertical = neg_vertical-y
               
                 
             #if left or right change current direction

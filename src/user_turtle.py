@@ -54,7 +54,7 @@ class User_Turtle():
         #radius= (180*arc_len)/(angle*pi)
         radius= (180*arc_len)/(angle*math.pi)
         if self.compile_mode:
-            #self.commands_list.append("C"+str(number)+","+str(angle))
+            self.commands_list.append("C"+str(arc_len)+","+str(angle))
             print("scaling to do")
         else: 
             #turtle.circle(radius, extent(how much of circle does), steps=None)

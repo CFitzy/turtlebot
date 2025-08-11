@@ -110,8 +110,12 @@ class port_manager():
                         self.connection_states.update_states(self.usb_connection, self.allow_writing)
                     if "ACK" in in_str:         #check for NACK
                         self.sent=self.sent-1
-                        print("ACKED", self.sent)
+                        #print("ACKED", self.sent)
                     if not self.settings_acquired:
+                        in_str = in_str.lstrip(")")
+                        
+                        
+                        
                         self.saved_settings = in_str
                         self.settings_acquired = True
                         
