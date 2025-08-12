@@ -1,99 +1,78 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Jun 25 16:23:46 2025
-
+Handle file-related functions to load from and save to files
 @author: cmf6
 """
-
-import customtkinter as ctk
-import tkinter as tk
-import glob
-import re
+from customtkinter import filedialog
+from glob import glob
+from re import search
 
 
 class File_Handler():
+    # Initialise class with access to methods to put code into/retrieve from the code box
     def __init__(self, get_text, set_text, insert_text):
         self.set_text = set_text
         self.get_text = get_text
         self.insert_text  = insert_text
         
-    #load a code file
+    #Load a code file and put the contents inside the code box
     def load(self):
-        #pick file
-        print("load")
-        
+        #Pick a file via opening a dialogue
         try:
-        
-            filename = ctk.filedialog.askopenfilename(initialdir="/",
+            filename = filedialog.askopenfilename(initialdir="/",
                                                  title = "Select file",
                                                  filetypes = [("Text files",
                                                                "*.txt"),
                                                               ("All files",
                                                                "*.*")])
-            print(filename)
+            #Get text from file
+            with open(filename) as file:
+                contents = file.read()
+                #Put contents inside the code box
+                self.set_text(contents)
         
-            #get text from file
-            file = open(filename)
-
-            contents = file.read()
-            print("contents: ",contents)
-        
-            #set to set_text
-            self.set_text(contents)
-        
-            file.close()
         except:
             print("error loading file")
         
+    #Save the code in the code box into a file    
     def save(self):
         try:
-            print("save")
-            #pick filename 
-            file = tk.filedialog.asksaveasfile(initialfile= "Untitled.txt", 
+            #Pick filename 
+            file = filedialog.asksaveasfile(initialfile= "Untitled.txt", 
                                                defaultextension=".txt", 
                                                filetypes=[("All Files","*.*"),("Text Documents","*.txt")]
                                                )
-            print(file.name)
-
-            #save to file
+            #Save to file
             with open(file.name, "w") as outfile:
                 outfile.write(self.get_text())
         except:
             print("error saving file")
             
+    #Shape/Insert types = ["numbers", "letters", "shapes"]
             
-    
+    #Get all available filenames within the given insert folder
     def get_available_inserts(self, shape_type):
         path = "./characters/"+shape_type+"/*.txt"
-        #get all the filepaths in the folder
-        file_paths = glob.glob(path)
+        #Get all the filepaths in the folder
+        file_paths = glob(path)
+        #Get all the filenames 
         filenames = []
         for f in file_paths:
-            #put * into a match object
-            filename= re.search("./characters/"+shape_type+"\\\\(.*).txt", f)
-            #retrieve from match object and place just name into filenames list
+            #Put * into a match object
+            filename= search("./characters/"+shape_type+"\\\\(.*).txt", f)
+            #Retrieve from match object and place just name into filenames list
             filenames.append(filename.group(1))
-        print("f", filenames)
         return filenames
       
-        #insert_types = ["numbers", "letters", "shapes"]
-    #load a code file
+    #Load a code file based on folder name and filename, and insert the text into the code box
     def load_insert_text(self, value, folder):
-        #pick file
-        print("load")
-        
         try:
-        
-                
-            path = "./characters/"+folder+"/"+str(value)+".txt"
-            print(path)   
-            #read from file
+            path = "./characters/"+folder+"/"+str(value)+".txt"   
+            #Read from file
             with open(path, "r") as infile:
                 contents=infile.read()
-            
-            print("contents: ",contents)
-        
-            #set to set_text
+            #Insert file contents into the code box
             self.insert_text(contents)
         
         except:

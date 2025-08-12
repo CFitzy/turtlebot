@@ -4,17 +4,16 @@ Created on Mon Jun 30 11:26:00 2025
 
 @author: cmf6
 """
-
-import tkinter as tk
-import customtkinter as ctk
-from tkinter import ttk
+from customtkinter import CTkToplevel
+from tkinter import Button
+from tkinter import LEFT
 from tkhtmlview import HTMLScrolledText
 from tkhtmlview import RenderHTML
 
 class Info_Page():
     def __init__(self, top_bar_frame):
 
-        button = tk.Button(top_bar_frame, 
+        button = Button(top_bar_frame, 
                            text="About", 
                            background="#007D02", 
                            activebackground="#229F24", 
@@ -24,10 +23,10 @@ class Info_Page():
                            border=0,
                            command = self.display_page
                            )
-        button.pack(side=tk.LEFT, pady=2)
+        button.pack(side=LEFT, pady=2)
         
     def display_page(self):
-        self.pop_up = ctk.CTkToplevel()
+        self.pop_up = CTkToplevel()
         #self.pop_up.grab_set()
         self.pop_up.attributes("-topmost", True)
         self.pop_up.focus_force() 

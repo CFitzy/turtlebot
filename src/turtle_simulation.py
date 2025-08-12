@@ -13,7 +13,8 @@ import re
 import math
 
 class Turtle_Simulation():
-    def __init__(self, root):
+    def __init__(self, root, text_output):
+        self.text_output = text_output
         self.angle = 90
         self.size_used=[0,0,0,0]
         #has to be tkinter canvas as customtkinter works coordinates based but turtle needs len
@@ -38,17 +39,17 @@ class Turtle_Simulation():
         
 
 
-    def run_code(self, code, output_label, output=None):
+    def run_code(self, code, output=None):
         min_turtle_scale = 0.1
         
         if not self.paused:
             try:
-                output_label.configure(state="normal")
+                self.text_output.configure(state="normal")
                 if output:
-                    output_label.insert(END, text=output+"\n")
+                    self.text_output.insert(END, text=output+"\n")
                 else:
-                    output_label.insert(END, text=code+"\n")
-                output_label.configure(state="disabled")
+                    self.text_output.insert(END, text=code+"\n")
+                self.text_output.configure(state="disabled")
                 
                 #shrink turtle with threshold to keep turtle visible
                 if self.scale>=min_turtle_scale:

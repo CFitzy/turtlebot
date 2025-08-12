@@ -10,7 +10,7 @@ import serial
 import time
 import threading
 
-class port_manager():
+class Port_Manager():
     def __init__(self, connection_states):
         self.connection_states = connection_states
         self.setup =False
@@ -30,12 +30,11 @@ class port_manager():
     def change_port(self):
         self.allow_writing = False
         self.connection_states.update_states(self.usb_connection, self.allow_writing)
+        #close current port
         if self.port:
-            print("close: ", self.port)
             self.port.close()
         
         self.ports = list(serial.tools.list_ports.comports())
-        print("change ports: ", self.ports, "\n", self.port_name)
 
         if not self.port_name == None:
             print("open port ", self.port_name)       #For debugging

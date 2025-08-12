@@ -4,14 +4,15 @@ Created on Thu May 29 13:36:54 2025
 Creates the main window. The application runs from this class.
 @author: cmf6
 """
+
 import customtkinter as ctk
-import tkinter as tk
-import turtle_simulation as ts
-import code_input
-import top_menu
-import code_handler
-import port_manager
-import connection_state
+from tkinter import messagebox
+from turtle_simulation import Turtle_Simulation
+from code_input import Code_Input
+from top_menu import Top_Menu
+from code_handler import Code_Handler
+from port_manager import Port_Manager
+from connection_display import Connection_Display
 
 
 class Main():
@@ -34,19 +35,19 @@ class Main():
         
         top_frame = ctk.CTkFrame(root, fg_color="#007D02", corner_radius=0)
         top_frame.pack(side=ctk.TOP, fill=ctk.X)
-        connection_states = connection_state.Connection_Show()
-        connection_layout = connection_states.make_connection_layout(top_frame)
-        self.port_manager = port_manager.port_manager(connection_states)
-        self.code_handler = code_handler.Code_Handler(self.port_manager)
+        connection_display = Connection_Display()
+        connection_layout = connection_display.make_connection_layout(top_frame)
+        self.port_manager = Port_Manager(connection_display)
+        self.code_handler = Code_Handler(self.port_manager)
         
-        self.code_input = code_input.Code_Input(root, self.clear_text)
+        self.code_input = Code_Input(root, self.clear_text)
         
         self.right_frame= ctk.CTkFrame(root, fg_color="transparent")
         
         #shows output errors on label
         self.text_output = ctk.CTkTextbox(self.right_frame, width=300, corner_radius=0, state="disabled")
         
-        self.top_menu = top_menu.Top_Menu(root, 
+        self.top_menu = Top_Menu(root, 
                                           self.port_manager, 
                                           top_frame,connection_layout, 
                                           self.change_textsize,
@@ -59,7 +60,7 @@ class Main():
         
                 
         
-        self.turtle_view = ts.Turtle_Simulation(self.right_frame)
+        self.turtle_view = Turtle_Simulation(self.right_frame, self.text_output)
         self.button_frame= ctk.CTkFrame(self.right_frame, fg_color="transparent")
         self.button_frame.pack(side=ctk.TOP, pady=2)
         
@@ -120,7 +121,7 @@ class Main():
 
         
     def clear_text(self):
-        result = tk.messagebox.askquestion("Clear confirmation", "Are you sure you want to clear the program?", )
+        result = messagebox.askquestion("Clear confirmation", "Are you sure you want to clear the program?", )
         if result=="yes":
             self.code_input.clear()
             self.text_output.configure(state="normal")
