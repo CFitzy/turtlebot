@@ -1,27 +1,35 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Jun  5 15:04:28 2025
-
+Create top menu buttons and handle insert, fontsize, pen and port selection functions
 @author: cmf6
 """
-import customtkinter as ctk
-import tkinter as tk
-import file_handler as fh
-import information_page as ip
-import setup_wizard as sw
-import sys
+
+from customtkinter import CTkToplevel
+from customtkinter import CTkSlider
+from customtkinter import CTkLabel
+from customtkinter import CTkButton
+from customtkinter import CTkOptionMenu
+from customtkinter import StringVar
+from customtkinter import LEFT
+from customtkinter import RIGHT
+from tkinter import Menu
+from tkinter import Menubutton
+from file_handler import File_Handler
+from information_page import Info_Page
+from setup_wizard import Setup_Wizard
+from sys import platform
 
 
 class Top_Menu():
     def __init__(self, root, port_manager, top_bar_frame, connection_frame, change_textsize, set_text, get_text, insert_text):
         #has to be tkinter canvas as customtkinter works coordinates based but turtle needs len
         
-        file_handler = fh.File_Handler(get_text, set_text, insert_text)
+        file_handler = File_Handler(get_text, set_text, insert_text)
         
         self.port_manager = port_manager
-        self.up = 0.5 #stuck till can reliabily move less
         self.down=0.3
-        setup_wizard = sw.setup_wizard(port_manager)
+        setup_wizard = Setup_Wizard(port_manager)
         #menubar = tk.Menu(top_bar_frame)
         root.option_add('*tearOff', False) # gets rid of ---- at start of menus
         file_button = self.make_top_menu_button(top_bar_frame, "File")
@@ -29,7 +37,7 @@ class Top_Menu():
         settings_button  = self.make_top_menu_button(top_bar_frame, "Settings")
         
         
-        file_button.menu = tk.Menu(file_button, font=("12"))
+        file_button.menu = Menu(file_button, font=("12"))
         file_button["menu"] = file_button.menu
         
         file_button.menu.add_command(label="Save", command=lambda: file_handler.save())
@@ -38,12 +46,12 @@ class Top_Menu():
         
         insert_types = ["numbers", "letters", "shapes"]
         
-        insert_button.menu = tk.Menu(insert_button, font=("12"))
+        insert_button.menu = Menu(insert_button, font=("12"))
         insert_button["menu"] = insert_button.menu
         
         
         for it in insert_types:
-            menu_ins = tk.Menu(insert_button)
+            menu_ins = Menu(insert_button)
             insert_button.menu.add_cascade(menu=menu_ins, label=it[0].capitalize()+it[1:])
             inserts = file_handler.get_available_inserts(it)
             for i in inserts:
@@ -52,7 +60,7 @@ class Top_Menu():
         
         
         #Setttings menu and buttons to select a port, open the setup wizard, pick the pen height, and pick the text size
-        settings_button.menu = tk.Menu(settings_button, font=("12"))
+        settings_button.menu = Menu(settings_button, font=("12"))
         settings_button["menu"] = settings_button.menu
         
         settings_button.menu.add_command(label="Select port", command=self.make_connection_dropdown)
@@ -62,7 +70,7 @@ class Top_Menu():
         settings_button.menu.add_command(label="Pen height", command=self.set_pen_view)
         #settings_button.menu.add_command(label="Font size")
         
-        menu_font = tk.Menu(settings_button)
+        menu_font = Menu(settings_button)
         settings_button.menu.add_cascade(menu=menu_font, label='Font size')
         
         fonts = [8, 10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36]
@@ -72,21 +80,20 @@ class Top_Menu():
         menu_font.invoke(5)
         
         
-        ip.Info_Page(top_bar_frame)
+        Info_Page(top_bar_frame)
             
-        #self.refresh_button.pack(side=ctk.LEFT, padx=3)
-        connection_frame.pack(side=ctk.RIGHT, padx=1)
+        connection_frame.pack(side=RIGHT, padx=1)
         
         #show which port is currently connected to
-        self.port_label = ctk.CTkLabel(top_bar_frame, text="No port", text_color="#007D02", fg_color="white", width =100, height=20)
+        self.port_label = CTkLabel(top_bar_frame, text="No port", text_color="#007D02", fg_color="white", width =100, height=20)
         if port_manager.port:
             self.port_label.configure(text=port_manager.port.name)
 
-        self.port_label.pack(side=ctk.RIGHT, padx=3)
+        self.port_label.pack(side=RIGHT, padx=3)
         
         
     def make_top_menu_button(self, top_bar_frame, text):
-        button = tk.Menubutton(top_bar_frame, text=text, 
+        button = Menubutton(top_bar_frame, text=text, 
                                     background="#007D02", 
                                     activebackground="#229F24", 
                                     font=("14"), 
@@ -95,16 +102,16 @@ class Top_Menu():
                                     border=0
                                     )
         #test if macOs? if so make the button text green as will have a white background
-        if sys.platform == "darwin":
+        if platform == "darwin":
             button.configure(foreground="#007D02", activeforeground="#007D02", background = "#FFFFFF", activebackground="#FFFFFF")
             
-        button.pack(side=ctk.LEFT, pady=2)
+        button.pack(side=LEFT, pady=2)
         return button
     
     
     
     def make_connection_dropdown(self):
-        self.connection_pop_up = ctk.CTkToplevel()
+        self.connection_pop_up = CTkToplevel()
         self.connection_pop_up.grab_set()           # Stop other window interaction
         self.connection_pop_up.focus_force()        # Set input focus to the popup
         self.connection_pop_up.lift()               #make sure pop up is above other window
@@ -113,19 +120,17 @@ class Top_Menu():
         #stops icon being overwritten by the default (overwrites the overwrite)
         self.connection_pop_up.after(200, lambda :self.connection_pop_up.iconbitmap('./graphics/turtle_logo.ico'))
         
-        ctk.CTkLabel(self.connection_pop_up, text="Select a port below").pack()
+        CTkLabel(self.connection_pop_up, text="Select a port below").pack()
         
         first_option, port_names = self.port_manager.get_port_names()
-        if not port_names:
-            self.port_label.configure(text="None")
         
-        port_var = ctk.StringVar(value=first_option)
-        self.port_menu = ctk.CTkOptionMenu(self.connection_pop_up, values=port_names,
+        port_var = StringVar(value=first_option)
+        self.port_menu = CTkOptionMenu(self.connection_pop_up, values=port_names,
                                          command=self.optionmenu_callback,
                                          variable=port_var)
         self.port_menu.pack(padx=5, pady=5)
         
-        self.refresh_list_button = ctk.CTkButton(self.connection_pop_up, text="Refresh ports", command=self.refresh_ports_list)
+        self.refresh_list_button = CTkButton(self.connection_pop_up, text="Refresh ports", command=self.refresh_ports_list)
         self.refresh_list_button.pack(pady=2)
         
         
@@ -138,51 +143,41 @@ class Top_Menu():
             
     def refresh_ports_list(self):
         first_option, port_names = self.port_manager.get_port_names()
-        port_var = ctk.StringVar(value=first_option)
+        port_var = StringVar(value=first_option)
         self.port_menu.configure(values=port_names, variable=port_var)
 
         
         
         
     def set_pen_view(self):
-        self.pop_up = ctk.CTkToplevel()
+        self.pop_up = CTkToplevel()
         self.pop_up.grab_set()           # Stop other window interaction
         self.pop_up.focus_force()        # Set input focus to the popup
         self.pop_up.lift()               #make sure pop up is above other window
         self.pop_up.title("Set pen height")
         self.pop_up.after(201, lambda :self.pop_up.iconbitmap('./graphics/turtle_logo.ico'))
         
-        down_label = ctk.CTkLabel(self.pop_up, text="Adjust pen height until it is just on the paper")
+        down_label = CTkLabel(self.pop_up, text="Adjust pen height until it is just on the paper")
         down_label.pack(padx=5, pady=5)
-        down_slider = ctk.CTkSlider(self.pop_up, from_=0, to=1, command=self.down_slider_event, number_of_steps=100)
+        down_slider = CTkSlider(self.pop_up, from_=0, to=1, command=self.down_slider_event, number_of_steps=100)
         down_slider.pack(pady=5)
         down_slider.set(self.down)
+        #Move pen down to start position
         self.down_slider_event(self.down)
-        save_button = ctk.CTkButton(self.pop_up, text="Save", command=self.save)
+        save_button = CTkButton(self.pop_up, text="Save", command=self.save)
         save_button.pack(pady=5)
         
-
+        #Move pen down (or up depending on value)
     def down_slider_event(self, value):
-        print(value)
-        #value=value/ranger
+        #Round value to 2D.P. then send to port as down value
         value = round(value, 2)
-        #if value<=0.8:
-            #setup_value = round(value+0.2, 2)
-            #self.port_manager.send_command("D"+str(setup_value))
-            #self.up= setup_value
-        #else:                                                           #very unlikely to occur as would mean ground is taller than wheels
-            #setup_value = round(value-0.2, 2)
-            #self.port_manager.send_command("D"+str(setup_value))
-            #self.up= 1
-        #self.port_manager.send_command("D"+string_value)
-        #self.port_manager.send_command("o")
-        if(abs(self.down-value)>0.02):
-            self.port_manager.send_command("D"+str(value))      #never sets up
+        self.port_manager.send_command("D"+str(value))
+        #Set value to current down
         self.down=value
         
+    #Save up pen value and finish
     def save(self):
-        self.port_manager.up = self.up
-        self.port_manager.down = self.down
-        self.port_manager.send_command("U"+str(self.up))
-        print("save here")
+        #Move pen back up so not touching paper
+        self.port_manager.send_command("U"+str(self.down+0.2))
+        #Close pop up
         self.pop_up.destroy()

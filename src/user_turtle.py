@@ -18,72 +18,91 @@ class User_Turtle():
         #List of commands in sequnce so far (for working out turtle simulation scaling purposes)                         
         self.commands_list = []
        
-    
+    #Use the turtle_simulation class to work out the scale its turtle should be at so it stays in view
     def find_simulation_scale(self):
         self.turtle_sim.work_out_scale(self.commands_list)
+        #Compiling finished
         self.compile_mode = False
         
+    #Move the turtle forward by number of millimeters
     def forward(self, number):
+        #If in compile mode put in commands list
         if self.compile_mode:
             self.commands_list.append("F"+str(int(number)))
             
         else: 
-            number = int(round(number))
+            #Send code to the turtle simulation in Python Turtle graphics code
             self.turtle_sim.run_code("turtle.forward("+str(number)+")")
+            #If turtlebot connected send it the forward command
             if self.port_manager.allow_writing:
                 self.port_manager.send_command("F"+str(number))
         
-        
+    #Turn the turtle right by number of degrees
     def right(self, number):
+        #If in compile mode put in commands list
         if self.compile_mode:
             self.commands_list.append("R"+str(number))
         else: 
+            #Send code to the turtle simulation in Python Turtle graphics code
             self.turtle_sim.run_code("turtle.right("+str(number)+")")
+            #If turtlebot connected send it the turn command
             if self.port_manager.allow_writing:
                 self.port_manager.send_command("T"+str(number))
-        
+       
+    #Turn the turtle left by number of degrees
     def left(self, number):
+        #If in compile mode put in commands list
         if self.compile_mode:
             self.commands_list.append("L"+str(number))
         else: 
-            
+            #Send code to the turtle simulation in Python Turtle graphics code
             self.turtle_sim.run_code("turtle.left("+str(number)+")")
+            #If turtlebot connected send it the turn command (negative as anticlockwise)
             if self.port_manager.allow_writing:
                 self.port_manager.send_command("T-"+str(number))
-                
-    def curve(self, arc_len, angle):      #not cir, arc dist
-        #radius= (180*arc_len)/(angle*pi)
+        
+    #Move the turtle in a curve of length arc_len with an angle of angle
+    def curve(self, arc_len, angle):
+        #Work out radius from angle and arc length
         radius= (180*arc_len)/(angle*pi)
+        #If in compile mode put in commands list with comma to seperate values
         if self.compile_mode:
             self.commands_list.append("C"+str(arc_len)+","+str(angle))
         else: 
-            #turtle.circle(radius, extent(how much of circle does), steps=None)
-            #minus so turns right
+            #Send code to the turtle simulation in Python Turtle graphics code
+            #The radius is negative so it turns right (same way as turtlebot)
             self.turtle_sim.run_code("turtle.circle(-"+str(radius)+","+str(angle)+")", output= "turtle.curve("+str(arc_len)+","+str(angle)+")")
-            if self.port_manager.allow_writing:
-                
+            #If turtlebot connected send it the curve command
+            if self.port_manager.allow_writing: 
                 self.port_manager.send_command("C"+str(arc_len)+" "+str(angle))        
     
-    
-    
-        
+
+    #Move the pen down   
     def down(self):
+        #If not in compile mode send the simulation the corresponding turtle library code
         if not self.compile_mode:
             self.turtle_sim.run_code("turtle.down()")
+            #If turtlebot connected send it the down command
             if self.port_manager.allow_writing:
                 self.port_manager.send_command("D")
-        
+      
+    #Move the pen up
     def up(self):
+        #If not in compile mode send the simulation the corresponding turtle library code
         if not self.compile_mode:
             self.turtle_sim.run_code("turtle.up()")
+            #If turtlebot connected send it the up command
             if self.port_manager.allow_writing:
                 self.port_manager.send_command("U")
-            
+      
+    #Display given message
     def message(self, message):
+        #If not in compile mode write the message to the output box
         if not self.compile_mode:
             self.text_output.configure(state="normal")
             self.text_output.insert(END, text=message+"\n")
             self.text_output.configure(state="disabled")
+            #If turtlebot connected also send the message to its display
             if self.port_manager.allow_writing:
                 self.port_manager.send_command("="+message)
         

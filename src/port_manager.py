@@ -16,8 +16,6 @@ class Port_Manager():
         self.setup =False
         self.usb_connection = False
         self.allow_writing = False
-        self.up =0.5
-        self.down = 0.3
         self.port = None
         self.port_name =None
         self.connection_states.update_states(self.usb_connection, self.allow_writing)

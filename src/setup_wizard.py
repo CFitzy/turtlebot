@@ -11,7 +11,7 @@ import time
 import math
 from PIL import Image
 
-class setup_wizard():
+class Setup_Wizard():
     def __init__(self, port_manager):
         self.circle_steps = 4096
         self.port_manager = port_manager
@@ -206,6 +206,7 @@ class setup_wizard():
         else:
             button_text="Draw"
         self.wheel_draw_button = self.make_button(self.frame, button_text, self.draw_for_diameter)
+        
     def draw_for_diameter(self):
         for w in self.image_label.winfo_children():
             w.destroy()
@@ -218,10 +219,10 @@ class setup_wizard():
         
         self.port_manager.send_command("F 10")
         # lower pen
-        self.port_manager.send_command("D0.2")
+        self.port_manager.send_command("D")
         # move 30cm
         self.port_manager.send_command("F300")
-        self.port_manager.send_command("U0.6")
+        self.port_manager.send_command("U")
         # reset motor speed (uS per step, 1100 fastest @ 7Volt)
         self.port_manager.send_command("s1 1100")
         self.port_manager.send_command("o")
@@ -264,16 +265,17 @@ class setup_wizard():
         
         #get expected wheel diameter
         expected_diameter = self.settings.get("wheelL")
-        
+        #Actual diameter = percentage of expected line drawn*expected diameter
+        #Round as turtlebot uses doubles so has a floating point threshold
         actual_diameter = round((float(length)/300)*float(expected_diameter), 6)
         
-        #set values for diameters
+        #Set values for diameters
         self.port_manager.send_command("s2 "+str(actual_diameter))
         self.port_manager.send_command("s3 "+str(actual_diameter))
         self.settings.update({"wheelL": actual_diameter})
         self.settings.update({"wheelR": actual_diameter})
         print(self.settings)
-        
+
         
     def check_axle_length(self):
         for w in self.frame.winfo_children():
@@ -341,23 +343,23 @@ class setup_wizard():
     # Take up backlash
         self.port_manager.send_command("l 200")
 
-        self.port_manager.send_command("D0.2")
+        self.port_manager.send_command("D")
 
-    #turn for a circle: ((2*axle)/wheel diameter)*steps for rotation
+    #Turn for a circle: ((2*axle)/wheel diameter)*steps for rotation
         self.port_manager.send_command("l "+str(round((((2*float(self.settings.get("Axle")))/float(self.settings.get("wheelL")))*4096))))
 
-        self.port_manager.send_command("U0.6")
+        self.port_manager.send_command("U")
         
         self.port_manager.send_command("F 30")
 
     #Take up backlash
         self.port_manager.send_command("r 200")
 
-        self.port_manager.send_command("D0.2")
+        self.port_manager.send_command("D")
     #r ((2*79.6)/53.02)*4096
     #r 12299
         self.port_manager.send_command("r "+str(round((((2*float(self.settings.get("Axle")))/float(self.settings.get("wheelR")))*4096))))
-        self.port_manager.send_command("U0.6")
+        self.port_manager.send_command("U")
 
     # turn off motors
         self.port_manager.send_command("F 30")
@@ -369,8 +371,6 @@ class setup_wizard():
 
     def calculate_axle_length(self):
     # the circle ends either overlap or have a gap.
-    # if they overlap reduce the axle length setting by 2mm until there is a gap 
-    # (a gap is easier to measure)
     # to adjust axle take the average axle circumference error (Ace) of the two directions 
     # using the set Ad (axle length)
     # axle circumference is Ac = 2*Ad*PI
@@ -399,7 +399,6 @@ class setup_wizard():
                 #get expected wheel diameter
                 expected_axle = float(self.settings.get("Axle"))
     
-                #actual_axle = round(expected_axle -(avg_len/2*math.pi), 3)
                 #actual_axle = round(expected_axle-(avg_len/(2*math.pi)), 6)     
                 actual_axle = round(expected_axle-(avg_len/(math.pi)), 6)   
     

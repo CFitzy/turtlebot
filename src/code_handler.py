@@ -33,6 +33,7 @@ class Code_Handler():
             
             #If the turtle is connected, send it a command to turn the motor off now that the code is done
             if self.port_manager.allow_writing:
+                #Delay in case of message to allow time to view
                 sleep(4)
                 self.port_manager.send_command("o")
                 

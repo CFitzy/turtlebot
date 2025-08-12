@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Jun 30 11:26:00 2025
-
+Display the About HTML pages with button to access them
 @author: cmf6
 """
 from customtkinter import CTkToplevel
@@ -11,8 +11,8 @@ from tkhtmlview import HTMLScrolledText
 from tkhtmlview import RenderHTML
 
 class Info_Page():
+    #Create About button to access the information pages
     def __init__(self, top_bar_frame):
-
         button = Button(top_bar_frame, 
                            text="About", 
                            background="#007D02", 
@@ -25,16 +25,18 @@ class Info_Page():
                            )
         button.pack(side=LEFT, pady=2)
         
+    #Open window containing the About page
     def display_page(self):
+        #Make pop up above the main window
         self.pop_up = CTkToplevel()
-        #self.pop_up.grab_set()
         self.pop_up.attributes("-topmost", True)
-        self.pop_up.focus_force() 
+        #Set windowtitle and size
         self.pop_up.title("About the Turtlebot")
-        #reset logo image
-        self.pop_up.after(200, lambda :self.pop_up.iconbitmap('./graphics/turtle_logo.ico'))
         self.pop_up.geometry("500x500")
+        #Reset logo image as it is replaced with the default tkinter one otherwise
+        self.pop_up.after(200, lambda :self.pop_up.iconbitmap('./graphics/turtle_logo.ico'))
         
+        #Put contents of HTML file into a ScrolledText and pack into TopLevel
         html = HTMLScrolledText(self.pop_up, html=RenderHTML('html_info/information_page.html'), state="disabled")
         html.pack(fill="both", expand=True)
         
