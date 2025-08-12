@@ -75,10 +75,10 @@ class Turtle_Simulation():
                 
             except Exception as e:      #compile can't catch name errors so instead catch line by line
                 #display on output
-                output_label.configure(state="normal")
-                output_label.insert(END, text="\n"+str(e))
-                output_label.configure(state="disabled")
-                output_label.see(END)
+                self.text_output.configure(state="normal")
+                self.text_output.insert(END, text="\n"+str(e))
+                self.text_output.configure(state="disabled")
+                self.text_output.see(END)
                 self.stop_turtle()
             
     
@@ -108,7 +108,6 @@ class Turtle_Simulation():
         neg_vertical, pos_vertical =0,0
         angle = self.angle
         h_pos_scale, v_pos_scale, h_neg_scale, v_neg_scale= 1,1,1,1
-        print(h_offset, offset)
         for line in lines:
             if line[0] == "F":
                 x = int(line[1:])*math.sin(math.radians(angle))
@@ -122,9 +121,7 @@ class Turtle_Simulation():
                     pos_vertical = pos_vertical-y
                 else:
                     neg_vertical = neg_vertical-y
-                #horizontal = horizontal+x
-                #vertical = vertical-y
-                #print(horizontal, vertical)
+ 
                 
             elif line[0] == "C":
                 values = line[1:].split(",")
@@ -175,10 +172,6 @@ class Turtle_Simulation():
             elif line[0] == "L":
                 angle = (angle-float(line[1:]))%360
         print(neg_horizontal, pos_horizontal, neg_vertical, pos_vertical)
-        #longest_len = max(vertical, horizontal)
-        #min_length = min(vertical, horizontal)
-
-        #smallest_screen_dimension = min(self.canvas.winfo_height(),self.canvas.winfo_width())
         
         if neg_horizontal < 0:
             h_neg_scale= (h_offset-padding)/(abs(neg_horizontal)+h_offset)
@@ -197,10 +190,10 @@ class Turtle_Simulation():
             print("pv:",v_pos_scale)
         
         new_scale = min(h_neg_scale, h_pos_scale, v_neg_scale, v_pos_scale)
-
+        
+        #If the newscale is smaller than the current scale, set it to the current scale
         if new_scale<self.scale:
             self.scale = new_scale
             print("newscale", new_scale)
+        #Set the angle to the current angle
         self.angle = angle
-
-        
