@@ -55,7 +55,6 @@ class Top_Menu():
             insert_button.menu.add_cascade(menu=menu_ins, label=it[0].capitalize()+it[1:])
             inserts = file_handler.get_available_inserts(it)
             for i in inserts:
-                print(it, i)
                 menu_ins.add_command(label=str(i), command= lambda i=i, it=it: file_handler.load_insert_text(i, it))
         
         
@@ -75,7 +74,6 @@ class Top_Menu():
         
         fonts = [8, 10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36]
         for i in fonts:
-            print(i)
             menu_font.add_radiobutton(label=str(i)+" px", command=lambda i=i: change_textsize(i))
         menu_font.invoke(5)
         
@@ -135,7 +133,6 @@ class Top_Menu():
         
         
     def optionmenu_callback(self, choice):
-        print("optionmenu dropdown clicked:", choice)
         #send picked portname to pm
         self.port_manager.set_port(choice)
         self.port_label.configure(text=choice)
