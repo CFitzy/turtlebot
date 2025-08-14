@@ -104,23 +104,25 @@ class Turtle_Simulation():
         offset =self.canvas.winfo_height()/3
         h_offset=self.canvas.winfo_width()/3
         padding =20
-        neg_horizontal, pos_horizontal = offset, offset
+        neg_horizontal, pos_horizontal = 0,0
         neg_vertical, pos_vertical =0,0
         angle = self.angle
         h_pos_scale, v_pos_scale, h_neg_scale, v_neg_scale= 1,1,1,1
         for line in lines:
             if line[0] == "F":
                 x = int(line[1:])*math.sin(math.radians(angle))
+                print("x: ",x)
                 y = int(line[1:])*math.cos(math.radians(angle))
+                print("y: ",y)
                 if x>0:
                     pos_horizontal = pos_horizontal+x
                 else:
                     neg_horizontal = neg_horizontal+x
                     
                 if y>0:
-                    pos_vertical = pos_vertical-y
+                    pos_vertical = pos_vertical+y
                 else:
-                    neg_vertical = neg_vertical-y
+                    neg_vertical = neg_vertical+y
  
                 
             elif line[0] == "C":
@@ -161,9 +163,9 @@ class Turtle_Simulation():
                     neg_horizontal = neg_horizontal+x
                     
                 if y>0:
-                    pos_vertical = pos_vertical-y
+                    pos_vertical = pos_vertical+y
                 else:
-                    neg_vertical = neg_vertical-y
+                    neg_vertical = neg_vertical+y
               
                 
             #if left or right change current direction
@@ -174,19 +176,18 @@ class Turtle_Simulation():
         print(neg_horizontal, pos_horizontal, neg_vertical, pos_vertical)
         
         if neg_horizontal < 0:
-            h_neg_scale= (h_offset-padding)/(abs(neg_horizontal)+h_offset)
-            print("h-", h_neg_scale)
-        elif pos_horizontal > self.canvas.winfo_width()-h_offset:
+            h_neg_scale= (h_offset-padding)/(abs(neg_horizontal))
+        if pos_horizontal > self.canvas.winfo_width()-h_offset:
             h_pos_scale= (self.canvas.winfo_width()-h_offset-padding)/(pos_horizontal)
             print("h+",h_pos_scale)
         
         #south
-        if neg_vertical > self.canvas.winfo_height()-offset:
-            v_neg_scale= (self.canvas.winfo_height()-offset-padding)/(neg_vertical)
+        if neg_vertical <0:
+            v_neg_scale= (self.canvas.winfo_height()-offset-padding)/(abs(neg_vertical))
             print("nv:",v_neg_scale)
         #north
-        elif pos_vertical < -offset:
-            v_pos_scale= (offset-padding)/(abs(pos_vertical)+offset)
+        if pos_vertical >0:
+            v_pos_scale= (offset-padding)/(abs(pos_vertical))
             print("pv:",v_pos_scale)
         
         new_scale = min(h_neg_scale, h_pos_scale, v_neg_scale, v_pos_scale)
