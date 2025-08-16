@@ -5,10 +5,10 @@ Created on Thu Jun  5 13:44:36 2025
 @author: cmf6
 """
 
-import serial.tools.list_ports
-import serial
-import time
-import threading
+from serial.tools.list_ports import comports
+from serial import Serial
+from time import sleep
+from threading import Thread
 
 class Port_Manager():
     def __init__(self, connection_states):
@@ -32,21 +32,21 @@ class Port_Manager():
         if self.port:
             self.port.close()
         
-        self.ports = list(serial.tools.list_ports.comports())
+        self.ports = list(comports())
 
         if not self.port_name == None:
             print("open port ", self.port_name)       #For debugging
-            self.port = serial.Serial(self.port_name, baudrate=115200)
+            self.port = Serial(self.port_name, baudrate=115200)
             self.setup =False
             self.usb_connection =True
             self.connection_states.update_states(self.usb_connection, self.allow_writing)
             self.port_name =None
-            threading.Thread(target= self.read_port).start()
+            Thread(target= self.read_port).start()
         else:
             self.usb_connection =False
             self.connection_states.update_states(self.usb_connection, self.allow_writing)
             #wait for a second then try again
-            time.sleep(1)
+            sleep(1)
         
     def set_port(self, port_name):
         #if first 3 letters
@@ -62,13 +62,10 @@ class Port_Manager():
     
     def get_port_names(self):
         port_names = []
-        for p in list(serial.tools.list_ports.comports()):
+        for p in list(comports()):
             port_names.append(p.name)
         
-        if not port_names:
-            return "No ports", port_names
-        else:
-            return "Select port", port_names
+        return port_names
         
         
         
@@ -124,7 +121,7 @@ class Port_Manager():
                 print("port disconnected", self.usb_connection)
                 self.close_port()
                     
-            time.sleep(1)
+            sleep(1)
 
     
             
@@ -147,7 +144,7 @@ class Port_Manager():
             print(self.sent)
             while self.sent>self.buffer_number:
                 #print("waiting")
-                time.sleep(0.01)
+                sleep(0.01)
             print("escape", self.sent)
             
             
@@ -158,7 +155,7 @@ class Port_Manager():
         self.port.write(out)
         
         while not self.settings_acquired:
-            time.sleep(0.01)
+            sleep(0.01)
         return self.saved_settings
         
         

@@ -21,8 +21,8 @@ class Code_Handler():
             text_output.configure(state="normal")
             text_output.delete(1.0, END)
             text_output.configure(state="disabled")
-            #Unpause the turtle simulation
-            turtle.paused = False
+            #Set the turtle simulation into running mode
+            turtle.start_turtle()
             #Make an instance of the User_Turtle class that can run the commands
             turtle = User_Turtle(self.port_manager, turtle, text_output)
             #Run compile mode to work out turtle simulation scaling

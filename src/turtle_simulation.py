@@ -4,27 +4,45 @@ Created on Mon Jun  2 11:53:43 2025
 Handles the turtle simulation. Runs the user code given, works out turtle scale to keep in view and reset the turtle
 @author: cmf6
 """
-import turtle
+
+from turtle import TurtleScreen
+from turtle import RawTurtle
+#Tkinter Canvas required as Customtkinter is coordinates based but turtle needs length based
 from tkinter import Canvas
 from customtkinter import CTkButton
 from customtkinter import TOP
 from customtkinter import END
-import re
-import math
+from re import split
+from math import sin
+from math import cos
+from math import radians
+from math import pi
+from math import ceil 
+
 
 class Turtle_Simulation():
     def __init__(self, root, text_output):
         self.text_output = text_output
+        #Angle the turtle is currently facing
         self.angle = 90
-        self.size_used=[0,0,0,0]
-        #has to be tkinter canvas as customtkinter works coordinates based but turtle needs len
-        self.canvas = Canvas(root, width=500, height=500)
+        #Start maximum size that the canvas has been
+        self.max_canvheight, self.max_canvwidth = 200,200
+        #Create Canvas to place turtle on
+        self.canvas = Canvas(root, width=self.max_canvwidth, height=self.max_canvheight)
         self.canvas.pack(side=TOP)
-        self.screen = turtle.TurtleScreen(self.canvas)
-        self.terry = turtle.RawTurtle(self.screen, shape="turtle")
-        self.paused = False
+        #Create turtle's screen
+        self.screen = TurtleScreen(self.canvas)
+
+        #Create turtle
+        self.turtle = RawTurtle(self.screen, shape="turtle")
+        #Whether system is currently stopped/running
+        self.stopped = True
+        #Current scale of the turtle
         self.scale = 1
         
+        
+        
+        #Create reset turtle simulation button in the top right corner
         self.reset_button = CTkButton(root, 
                                           text="Reset", 
                                           command=self.reset, 
@@ -38,12 +56,12 @@ class Turtle_Simulation():
         self.reset_button.place(relx=0.99, y=2, x=0, anchor="ne")
         
 
-
+    #Run the given code (will be a line at a time). Output for if there is a different output text to be shown then the code being run
     def run_code(self, code, output=None):
-        min_turtle_scale = 0.1
-        
-        if not self.paused:
+        #If the code is not stopped
+        if not self.stopped:
             try:
+                #Set output textbox to editable, print code wanting to be shown and then set to not editable.
                 self.text_output.configure(state="normal")
                 if output:
                     self.text_output.insert(END, text=output+"\n")
@@ -51,150 +69,179 @@ class Turtle_Simulation():
                     self.text_output.insert(END, text=code+"\n")
                 self.text_output.configure(state="disabled")
                 
-                #shrink turtle with threshold to keep turtle visible
-                if self.scale>=min_turtle_scale:
-                    self.terry.shapesize(stretch_wid=self.scale, stretch_len=self.scale, outline=1)
-                else:
-                    self.terry.shapesize(stretch_wid=min_turtle_scale, stretch_len=min_turtle_scale, outline=1)
-                #if turtle forward resize in that direction
-                split_code = re.split(r'[(),]+', code)
+                #SCALING   
+                #Split code into sections
+                split_code = split(r'[(),]+', code)
+                #If command to go forward, scale the line size to the current scale and then reassemble into code line
                 if split_code[0] == "turtle.forward":
                   split_code[1] = float(split_code[1])*self.scale
                   code=split_code[0]+"("+str(split_code[1])+")"
-                  print(code)
+
+                #If command circle, scale the arc length(radius) size to the current scale and then reassemble into code line
                 elif split_code[0] == "turtle.circle":
                   split_code[1] = float(split_code[1])*self.scale
                   code=split_code[0]+"("+str(split_code[1])+","+str(split_code[2])+")"
-                  print(code)
 
-                    
+                #EXECUTING
+                #Add "self." so does to premade turtle
+                code_turtle = "self."+code
                 #Execute code
-                #added, otherwise doesn't know what the turtle is
-                code_turtle = "turtle = self.terry \nturtle.speed(1) \n"+code
                 exec(code_turtle)
-                
-            except Exception as e:      #compile can't catch name errors so instead catch line by line
-                #display on output
+            #If an exception is thrown   
+            except Exception as e:      
+                #Display exception to the output
                 self.text_output.configure(state="normal")
                 self.text_output.insert(END, text="\n"+str(e))
                 self.text_output.configure(state="disabled")
-                self.text_output.see(END)
+                #Stop the turtle from moving further
                 self.stop_turtle()
             
     
-            
+    #Set the turtle to the stopped state  
     def stop_turtle(self):
-        self.paused =True
+        self.stopped =True
         
-            #self.terry.home()
-    def get_paused(self):
-        return self.paused
+    #Set the turtle to the running state  
+    def start_turtle(self):
+        self.stopped =False
+
+    #Get if the turtle is in the stopped state
+    def get_stopped(self):
+        return self.stopped
             
-            
+    #Reset the turtle simulation into the starting position       
     def reset(self):
-        self.terry.reset()
+        self.turtle.reset()
+        #Reset the values for the dirction the turtle is facing and its scale
         self.scale=1
         self.angle=90
         
-    #resize turtle canvas
+    #Resize turtle canvas to match window size
     def resize(self, width, height):
         self.canvas.configure(width=width, height=height)
+        if height>self.max_canvheight:
+            self.max_canvheight = height
+        if width> self.max_canvwidth:
+            self.max_canvwidth = width
         
+        
+    #Turn a given vector (direction and angle) into vertical and horizntal components and add to appropriate direction
+    def turn_vector_into_components(self, angle, line):
+        #Get horizontal distance
+        x = int(line)*sin(radians(angle))
+        #Get vertical distance
+        y = int(line)*cos(radians(angle))
+        print("x,y", x, y, angle)
+        #Horizontal: If positive add to the positive direction, else add to the negative
+        if x>0:
+            self.pos_horizontal = self.pos_horizontal+x
+        else:
+            self.neg_horizontal = self.neg_horizontal+x
+          
+        #Vertical: If positive add to the positive direction, else add to the negative
+        if y>0:
+            self.pos_vertical = self.pos_vertical+y
+        else:
+            self.neg_vertical = self.neg_vertical+y
+
+        
+    #Calculate required turtle scale for the turtle drawings to stay on screen
     def work_out_scale(self, lines):
-        offset =self.canvas.winfo_height()/3
-        h_offset=self.canvas.winfo_width()/3
+        #Work out rough starting spot of the turtle
+        width_scale= self.max_canvwidth/1700
+        height_scale = self.max_canvheight/900
+        v_offset =self.canvas.winfo_height()*height_scale
+        h_offset=self.canvas.winfo_width()*width_scale
+        
+        #Padding to keep turtle from edges
         padding =20
-        neg_horizontal, pos_horizontal = 0,0
-        neg_vertical, pos_vertical =0,0
+        #Distance travelled by the turtle in each direction
+        self.neg_horizontal, self.pos_horizontal = 0,0
+        self.neg_vertical, self.pos_vertical =0,0
+        #Angle the turtle is currently facing
         angle = self.angle
+        #Scale required by the turtle in each direction to stay on screen
         h_pos_scale, v_pos_scale, h_neg_scale, v_neg_scale= 1,1,1,1
+        
+        #For each code line, treat as required
         for line in lines:
+            #If a forward movement, break line into components for the angle the turtle is currently moving
             if line[0] == "F":
-                x = int(line[1:])*math.sin(math.radians(angle))
-                print("x: ",x)
-                y = int(line[1:])*math.cos(math.radians(angle))
-                print("y: ",y)
-                if x>0:
-                    pos_horizontal = pos_horizontal+x
-                else:
-                    neg_horizontal = neg_horizontal+x
-                    
-                if y>0:
-                    pos_vertical = pos_vertical+y
-                else:
-                    neg_vertical = neg_vertical+y
+                self.turn_vector_into_components(angle, line[1:])
  
-                
+            #If a curve movement   
             elif line[0] == "C":
+                #Split into angle and arc length
                 values = line[1:].split(",")
-                print(values)
                 curve_angle = int(values[1])
                 arc = float(values[0])
+                #Hold the angles
                 curve_angles = []
-                loop_range = curve_angle//90
-                if curve_angle%90 >0:
-                    loop_range=loop_range+1
-                    
+                #Set angle amount left to process
                 angle_left = curve_angle
-                for i in range(0, loop_range):
+                
+                #Split the given angle into 90 degree segments of angle and put in list
+                for i in range(0, ceil(curve_angle/90)):
                     if angle_left>90:
                         curve_angles.append(90)
                         angle_left= angle_left-90
                     else:
                         curve_angles.append(angle_left)
                                             
-                print("ca", curve_angles)
-                
+                #For angles in the segment's angle list
                 for a in curve_angles:
-                    ##work out angle
+                    #Calculate angle
                     angle = (angle+((a/90)*45))%360
                     
-                    #work out dist moved
-                    distance = (180*arc*math.sin(math.radians(a)))/(a*math.pi)
-                    
-                    ##work out angle
-                    print(angle, distance)
-                    
-                x = int(distance)*math.sin(math.radians(angle))
-                y = int(distance)*math.cos(math.radians(angle))
-                if x>0:
-                    pos_horizontal = pos_horizontal+x
-                else:
-                    neg_horizontal = neg_horizontal+x
-                    
-                if y>0:
-                    pos_vertical = pos_vertical+y
-                else:
-                    neg_vertical = neg_vertical+y
-              
+                    #Calculate arc length for segment (proportion of total arc length)
+                    sector_arc = (a/curve_angle)*arc
+                    #Calculate distance moved (chord length)
+                    distance = (180*sector_arc*sin(radians(a)))/(a*pi)
+                    #Break line into vertical and horizontal components
+                    self.turn_vector_into_components(angle, distance)
                 
-            #if left or right change current direction
+            #If left or right change current angle direction
             elif line[0] == "R":
                 angle = (angle+float(line[1:]))%360
             elif line[0] == "L":
                 angle = (angle-float(line[1:]))%360
-        print(neg_horizontal, pos_horizontal, neg_vertical, pos_vertical)
+
+        #Calculate required scaling in each direction
+        #If moved West
+        if self.neg_horizontal < 0:
+            #Turtle start position(-padding) divided by the distance moved West
+            h_neg_scale= (h_offset-padding)/(abs(self.neg_horizontal))
+            
+        #If moved East
+        if self.pos_horizontal > self.canvas.winfo_width()-h_offset:
+            #Width of canvas -Turtle start position(-padding) divided by the distance moved East
+            h_pos_scale= (self.canvas.winfo_width()-h_offset-padding)/(self.pos_horizontal)
+            
+        #If moved South
+        if self.neg_vertical <0:
+            #Height of canvas -Turtle start position(-padding) divided by the distance moved South
+            v_neg_scale= (self.canvas.winfo_height()-v_offset-padding)/(abs(self.neg_vertical))
+
+        #If moved North
+        if self.pos_vertical >0:
+            #Turtle start position(-padding) divided by the distance moved North
+            v_pos_scale= (v_offset-padding)/(abs(self.pos_vertical))
         
-        if neg_horizontal < 0:
-            h_neg_scale= (h_offset-padding)/(abs(neg_horizontal))
-        if pos_horizontal > self.canvas.winfo_width()-h_offset:
-            h_pos_scale= (self.canvas.winfo_width()-h_offset-padding)/(pos_horizontal)
-            print("h+",h_pos_scale)
-        
-        #south
-        if neg_vertical <0:
-            v_neg_scale= (self.canvas.winfo_height()-offset-padding)/(abs(neg_vertical))
-            print("nv:",v_neg_scale)
-        #north
-        if pos_vertical >0:
-            v_pos_scale= (offset-padding)/(abs(pos_vertical))
-            print("pv:",v_pos_scale)
-        
+        #New scale is set to the smallest scale required
         new_scale = min(h_neg_scale, h_pos_scale, v_neg_scale, v_pos_scale)
         
         #If the newscale is smaller than the current scale, set it to the current scale
         if new_scale<self.scale:
             self.scale = new_scale
-            print("newscale", new_scale)
         #Set the angle to the current angle
         self.angle = angle
+        
+        
+        #Minimum turtle scale for it to still be visibly a turtle
+        min_turtle_scale = 0.1
+        
+        #Shrink turtle the same as the lines are scaled down with threshold to keep it visible
+        if self.scale>=min_turtle_scale:
+            self.turtle.shapesize(stretch_wid=self.scale, stretch_len=self.scale, outline=1)
+        else:
+            self.turtle.shapesize(stretch_wid=min_turtle_scale, stretch_len=min_turtle_scale, outline=1)

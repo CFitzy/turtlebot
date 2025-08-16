@@ -17,7 +17,7 @@ class Info_Page():
                            text="About", 
                            background="#007D02", 
                            activebackground="#229F24", 
-                           font=("12"), 
+                           font=("Roboto, 14"), 
                            foreground="#FFFFFF",
                            activeforeground="#FFFFFF",
                            border=0,
@@ -30,7 +30,7 @@ class Info_Page():
         #Make pop up above the main window
         self.pop_up = CTkToplevel()
         self.pop_up.attributes("-topmost", True)
-        #Set windowtitle and size
+        #Set window title and size
         self.pop_up.title("About the Turtlebot")
         self.pop_up.geometry("500x500")
         #Reset logo image as it is replaced with the default tkinter one otherwise
