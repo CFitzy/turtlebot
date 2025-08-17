@@ -34,7 +34,7 @@ class User_Turtle():
             #Send code to the turtle simulation in Python Turtle graphics code
             self.turtle_sim.run_code("turtle.forward("+str(number)+")")
             #If turtlebot connected send it the forward command
-            if self.port_manager.allow_writing:
+            if self.port_manager.turtle_connection:
                 self.port_manager.send_command("F"+str(number))
         
     #Turn the turtle right by number of degrees
@@ -46,7 +46,7 @@ class User_Turtle():
             #Send code to the turtle simulation in Python Turtle graphics code
             self.turtle_sim.run_code("turtle.right("+str(number)+")")
             #If turtlebot connected send it the turn command
-            if self.port_manager.allow_writing:
+            if self.port_manager.turtle_connection:
                 self.port_manager.send_command("T"+str(number))
        
     #Turn the turtle left by number of degrees
@@ -58,7 +58,7 @@ class User_Turtle():
             #Send code to the turtle simulation in Python Turtle graphics code
             self.turtle_sim.run_code("turtle.left("+str(number)+")")
             #If turtlebot connected send it the turn command (negative as anticlockwise)
-            if self.port_manager.allow_writing:
+            if self.port_manager.turtle_connection:
                 self.port_manager.send_command("T-"+str(number))
         
     #Move the turtle in a curve of length arc_len with an angle of angle
@@ -73,7 +73,7 @@ class User_Turtle():
             #The radius is negative so it turns right (same way as turtlebot)
             self.turtle_sim.run_code("turtle.circle(-"+str(radius)+","+str(angle)+")", output= "turtle.curve("+str(arc_len)+","+str(angle)+")")
             #If turtlebot connected send it the curve command
-            if self.port_manager.allow_writing: 
+            if self.port_manager.turtle_connection: 
                 self.port_manager.send_command("C"+str(arc_len)+" "+str(angle))        
     
 
@@ -83,7 +83,7 @@ class User_Turtle():
         if not self.compile_mode:
             self.turtle_sim.run_code("turtle.down()")
             #If turtlebot connected send it the down command
-            if self.port_manager.allow_writing:
+            if self.port_manager.turtle_connection:
                 self.port_manager.send_command("D")
       
     #Move the pen up
@@ -92,7 +92,7 @@ class User_Turtle():
         if not self.compile_mode:
             self.turtle_sim.run_code("turtle.up()")
             #If turtlebot connected send it the up command
-            if self.port_manager.allow_writing:
+            if self.port_manager.turtle_connection:
                 self.port_manager.send_command("U")
       
     #Display given message
@@ -103,6 +103,6 @@ class User_Turtle():
             self.text_output.insert(END, text=message+"\n")
             self.text_output.configure(state="disabled")
             #If turtlebot connected also send the message to its display
-            if self.port_manager.allow_writing:
+            if self.port_manager.turtle_connection:
                 self.port_manager.send_command("="+message)
         

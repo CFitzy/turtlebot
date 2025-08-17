@@ -32,14 +32,14 @@ class Connection_Display():
         return self.connection_frame
         
     #Update the colours if required (will function but will throw warning as operates with a thread which tkinter is not designed to do)
-    def update_states(self, usb_connection, allow_writing):
+    def update_states(self, usb_connection, turtle_connection):
         #based on state change to green or red
         if usb_connection:
             self.usb_connection.configure(fg_color=self.green, bg_color=self.green_bg)
         else:
             self.usb_connection.configure(fg_color=self.red, bg_color=self.red_bg)
                 
-        if allow_writing:
+        if turtle_connection:
             self.turtle_connection.configure(fg_color=self.green, bg_color=self.green_bg)
         else:
             self.turtle_connection.configure(fg_color=self.red, bg_color=self.red_bg)

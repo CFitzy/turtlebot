@@ -79,7 +79,7 @@ class Setup_Wizard():
         self.frame.pack(expand=True, fill=ctk.BOTH)
         self.make_title("Setup turtlebot dimensions")
         
-        if not self.port_manager.allow_writing:
+        if not self.port_manager.turtle_connection:
             self.make_paragraph("Connect the turtlebot before setting it up")
             self.make_button(self.frame, "Close", self.wizard_pop_up.destroy)
         else:

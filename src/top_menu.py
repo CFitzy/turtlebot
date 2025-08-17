@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Jun  5 15:04:28 2025
-Create top menu buttons and handle insert, fontsize, pen and port selection functions
+Create top menu buttons and handle insert, font size, pen and port selection functions
 @author: cmf6
 """
-
 from customtkinter import CTkToplevel
 from customtkinter import CTkSlider
 from customtkinter import CTkLabel
@@ -22,74 +21,91 @@ from sys import platform
 
 
 class Top_Menu():
+    #Create the top menu and define additional variables
     def __init__(self, root, port_manager, top_bar_frame, connection_frame, change_textsize, set_text, get_text, insert_text):
-        #has to be tkinter canvas as customtkinter works coordinates based but turtle needs len
-        
+        #Create a File_Handler instance for reading and writing files (give functions to interact with the code textbox)
         file_handler = File_Handler(get_text, set_text, insert_text)
-        
+        #Save variable containing port manager instance
         self.port_manager = port_manager
+        #Initial pen down value
         self.down=0.3
+        #Create setup wizard instance
         setup_wizard = Setup_Wizard(port_manager)
+        
+        #Create top_menu
         root.option_add('*tearOff', False) # gets rid of ---- at start of menus
+        
+        #FILE
+        #Create the file top menu button
         file_button = self.make_top_menu_button(top_bar_frame, "File")
-        insert_button = self.make_top_menu_button(top_bar_frame, "Insert")
-        settings_button  = self.make_top_menu_button(top_bar_frame, "Settings")
-        
-        
+        #Create the file menu
         file_button.menu = Menu(file_button, font=("12"))
         file_button["menu"] = file_button.menu
-        
+        #Add the Save and Load command options
         file_button.menu.add_command(label="Save", command=lambda: file_handler.save())
         file_button.menu.add_command(label="Load", command=lambda: file_handler.load())
         
-        
-        insert_types = ["numbers", "letters", "shapes"]
-        
+        #INSERT
+        #Create the insert top menu button
+        insert_button = self.make_top_menu_button(top_bar_frame, "Insert")
+        #Create the insert menu
         insert_button.menu = Menu(insert_button, font=("12"))
         insert_button["menu"] = insert_button.menu
-        
-        
+        #Insert a command for each given type
+        insert_types = ["numbers", "letters", "shapes"]
+        #For each type
         for it in insert_types:
-            menu_ins = Menu(insert_button)
-            insert_button.menu.add_cascade(menu=menu_ins, label=it[0].capitalize()+it[1:])
+            #Make it a menu
+            menu_insert = Menu(insert_button)
+            #Put that menu into a cascade of the same name (with the first letter capitalised)
+            insert_button.menu.add_cascade(menu=menu_insert, label=it[0].capitalize()+it[1:])
+            #Get the available options of that type
             inserts = file_handler.get_available_inserts(it)
+            #For each option, add it to the submenu
             for i in inserts:
-                menu_ins.add_command(label=str(i), command= lambda i=i, it=it: file_handler.load_insert_text(i, it))
+                menu_insert.add_command(label=str(i), command= lambda i=i, it=it: file_handler.load_insert_text(i, it))
         
-        
-        #Setttings menu and buttons to select a port, open the setup wizard, pick the pen height, and pick the text size
+        #SETTINGS
+        #Create the settings top menu button
+        settings_button  = self.make_top_menu_button(top_bar_frame, "Settings")
+        #Create the settings menu and buttons to select a port, open the setup wizard, pick the pen height, and pick the text size
         settings_button.menu = Menu(settings_button, font=("12"))
         settings_button["menu"] = settings_button.menu
-        
+        #Add option of Select port to the settings menu to open a pop up to change the port for the turtlebot
         settings_button.menu.add_command(label="Select port", command=self.make_connection_dropdown)
-        
+        #Add option of Setup wizard to the settings menu to open a pop up to change the turtlebot's EEPROM settings
         settings_button.menu.add_command(label="Setup wizard", command=setup_wizard.setup_wizard)
-        
+        #Add option of Pen height to the settings menu to open a pop up to change the turtlebot's pen height
         settings_button.menu.add_command(label="Pen height", command=self.set_pen_view)
-        #settings_button.menu.add_command(label="Font size")
         
+        #FONT SIZE
+        #Menu to list font size options
         menu_font = Menu(settings_button)
+        #Create Font size option within Settings button
         settings_button.menu.add_cascade(menu=menu_font, label='Font size')
-        
+        #Code text/Output text font sizes
         fonts = [8, 10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36]
+        #Make cascade of radio button options for code text and output text size to be changed
         for i in fonts:
             menu_font.add_radiobutton(label=str(i)+" px", command=lambda i=i: change_textsize(i))
+        #Set current text size to fifth option(14)
         menu_font.invoke(5)
         
-        
+        #Create information/about page button to access the page
         Info_Page(top_bar_frame)
             
         connection_frame.pack(side=RIGHT, padx=1)
         
-        #show which port is currently connected to
+        #Display the current connected port. Show "No port" by default and replace with port name if one exists
         self.port_label = CTkLabel(top_bar_frame, text="No port", text_color="#007D02", fg_color="white", width =100, height=20)
         if port_manager.port:
             self.port_label.configure(text=port_manager.port.name)
 
         self.port_label.pack(side=RIGHT, padx=3)
         
-        
+    #Create a button for the top menu with given text (for File, Settings and Insert)
     def make_top_menu_button(self, top_bar_frame, text):
+        #Create a menu button 
         button = Menubutton(top_bar_frame, text=text, 
                                     background="#007D02", 
                                     activebackground="#229F24", 
@@ -98,7 +114,7 @@ class Top_Menu():
                                     activeforeground="#FFFFFF",
                                     border=0
                                     )
-        #test if macOs? if so make the button text green as will have a white background
+        #If using macOS (platform darwin), make the text green as it displays the buttons with a white background (even when not set here)
         if platform == "darwin":
             button.configure(foreground="#007D02", activeforeground="#007D02", background = "#FFFFFF", activebackground="#FFFFFF")
             

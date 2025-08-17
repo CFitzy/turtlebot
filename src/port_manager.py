@@ -15,49 +15,34 @@ class Port_Manager():
         self.connection_states = connection_states
         self.setup =False
         self.usb_connection = False
-        self.allow_writing = False
+        self.turtle_connection = False
         self.port = None
-        self.port_name =None
-        self.connection_states.update_states(self.usb_connection, self.allow_writing)
+        self.connection_states.update_states(self.usb_connection, self.turtle_connection)
         self.sent = 0
         #number of commands the buffer can take at a time
         self.buffer_number = 10
         #current values saved to the EEPROM
         self.saved_settings = None
         
-    def change_port(self):
-        self.allow_writing = False
-        self.connection_states.update_states(self.usb_connection, self.allow_writing)
-        #close current port
-        if self.port:
-            self.port.close()
+        
+    def set_port(self, port_name):
+        #if not first 3 letters
+        if not port_name[:3] == "COM":
+            port_name = "/dev/"+port_name
+        
+        #Close current port and update states and display to match
+        self.close_port()
+        self.turtle_connection = False
+        self.connection_states.update_states(self.usb_connection, self.turtle_connection)
         
         self.ports = list(comports())
 
-        if not self.port_name == None:
-            print("open port ", self.port_name)       #For debugging
-            self.port = Serial(self.port_name, baudrate=115200)
-            self.setup =False
-            self.usb_connection =True
-            self.connection_states.update_states(self.usb_connection, self.allow_writing)
-            self.port_name =None
-            Thread(target= self.read_port).start()
-        else:
-            self.usb_connection =False
-            self.connection_states.update_states(self.usb_connection, self.allow_writing)
-            #wait for a second then try again
-            sleep(1)
-        
-    def set_port(self, port_name):
-        #if first 3 letters
-        if port_name[:3] == "COM":
-            self.port_name = port_name
-            print(port_name[:3])
-        else:
-            self.port_name = "/dev/"+port_name
-        self.usb_connection = False
-        print(port_name)
-        self.change_port()
+        print("open port ", port_name)       #For debugging
+        self.port = Serial(port_name, baudrate=115200)
+        self.setup =False
+        self.usb_connection =True
+        self.connection_states.update_states(self.usb_connection, self.turtle_connection)
+        Thread(target= self.read_port).start()
             
     
     def get_port_names(self):
@@ -76,7 +61,7 @@ class Port_Manager():
         #non blocking read
         while (self.usb_connection):
             #probe to turtle if setup until acknowledged
-            if(self.setup and not self.allow_writing):
+            if(self.setup and not self.turtle_connection):
                 print("Hello")
                 self.port.write("=Hello\n".encode('utf-8'))
                 self.sent=self.sent+1
@@ -96,66 +81,75 @@ class Port_Manager():
                         print("outgoing: ", out)
                         #print(self.port.write(out))
                         self.setup=True
-                        self.allow_writing = False
+                        self.turtle_connection = False
                         in_str = ""
                     
                     if "=Hello ACK" in in_str:
-                        self.allow_writing = True
-                        self.connection_states.update_states(self.usb_connection, self.allow_writing)
+                        self.turtle_connection = True
+                        self.connection_states.update_states(self.usb_connection, self.turtle_connection)
                     if "ACK" in in_str:         #check for NACK
                         self.sent=self.sent-1
+                        if "NACK" in in_str:
+                            raise Exception("Turtlebot command failed to execute")
                         #print("ACKED", self.sent)
-                    if not self.settings_acquired:
+                    if not self.settings_acquired and "wheel" in in_str:
                         in_str = in_str.lstrip(")")
                         
-                        
-                        
+                        #Put input into saved settings and set acquired to true
                         self.saved_settings = in_str
                         self.settings_acquired = True
                         
             except:
-                
                 self.usb_connection = False
-                self.allow_writing = False
-                self.connection_states.update_states(self.usb_connection, self.allow_writing)
+                self.turtle_connection = False
+                self.connection_states.update_states(self.usb_connection, self.turtle_connection)
                 print("port disconnected", self.usb_connection)
                 self.close_port()
                     
             sleep(1)
 
     
-            
+    #Close the current port       
     def close_port(self):
+        #If there is an open port
         if not self.port == None:
+            #Close it
             self.port.close()
             self.usb_connection = False
             print("port closed")
                     
-            
                      
-    #send commmands to turtlebot
+    #Send commmand to turtlebot
     def send_command(self, command):
-        if self.allow_writing:
+        #If turtlebot is connected
+        if self.turtle_connection:
+            #Increase number of messages sent
             self.sent = self.sent+1
-            command=command+"\n"
-            out = command.encode("utf-8")
-            print("outgoing: ", out)
-            self.port.write(out)
-            print(self.sent)
+            #Encode and send command
+            self.write_to_turtle(command)
+            #Wait until buffer has enough space for another command
             while self.sent>self.buffer_number:
-                #print("waiting")
                 sleep(0.01)
-            print("escape", self.sent)
             
             
+    #Get turtlebot settings from EEPROM    
     def get_settings(self):
+        #Set to waiting for settings
         self.settings_acquired = False
-        out = "get\n".encode("utf-8")
-        print("outgoing: ", out)
-        self.port.write(out)
-        
+        #Encode and send get command
+        self.write_to_turtle("get")
+        #Wait until settings sent back
         while not self.settings_acquired:
             sleep(0.01)
+        #Return the settings sent back
         return self.saved_settings
-        
-        
+    
+    
+    #Write given command to port (to get to turtle) after formatting/encoding
+    def write_to_turtle(self, command):
+        #Encode and send command
+        command=command+"\n"
+        out = command.encode("utf-8")
+        self.port.write(out)
+        #Print out for debugging purposes
+        print("Out: ", out)
