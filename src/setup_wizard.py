@@ -1,445 +1,314 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Jul  9 11:06:05 2025
-
+Create setup wizard pop up and process for calibrating the turtlebot
 @author: cmf6
 """
-import tkinter as tk
-import customtkinter as ctk
-import re
-import time
-import math
+from tkinter import messagebox
+from customtkinter import CTkImage
+from customtkinter import CTkFrame
+from customtkinter import CTkButton
+from customtkinter import CTkLabel
+from customtkinter import CTkToplevel
+from customtkinter import CTkTextbox
+from customtkinter import CENTER
+from customtkinter import NORMAL
+from customtkinter import DISABLED
+from customtkinter import BOTH
+from customtkinter import LEFT
+from customtkinter import END
 from PIL import Image
+from setup_wizard_calculator import Setup_Wizard_Calculator
 
 class Setup_Wizard():
     def __init__(self, port_manager):
-        self.circle_steps = 4096
-        self.port_manager = port_manager
-        self.settings = {}
-        self.main_button_height = 0.8
+        #Create instance of the Setup Wizard Calculator to do the backend steps for the UI elements (turtlebot movements and calculations)
+        self.backend_magic = Setup_Wizard_Calculator(port_manager)
+        #Define main font size for the pop up
         self.paragraph_font = ("Roboto", 14)
+        #Define the pop up size
         self.pop_up_size = 500
-        
+        #Path to all graphics in the project
         path = "./graphics/"
-        
-        self.turtle_image = ctk.CTkImage(light_image=Image.open(path+"abstract_turtle.png"), size=(100, 100))
-        self.diameter_image = ctk.CTkImage(light_image=Image.open(path+"abstract_turtle_line.png"), size=(400, 100))
+        #First image
+        self.turtle_image = CTkImage(light_image=Image.open(path+"abstract_turtle.png"), size=(100, 100))
+        #Image to demonstrate how the turtlebot moves during wheel diameter calibrations
+        self.diameter_image = CTkImage(light_image=Image.open(path+"abstract_turtle_line.png"), size=(400, 100))
+        #Image to demonstrate how the turtlebot moves during axle length calibrations and what is meant by an overlap or gap
         self.axle_images = [
-            ctk.CTkImage(light_image=Image.open(path+"abstract_turtle_axle.png"), size=(240, 160)), 
-            ctk.CTkImage(light_image=Image.open(path+"overlap.png"), size=(60, 50)), 
-            ctk.CTkImage(light_image=Image.open(path+"gap.png"), size=(60, 50))
+            CTkImage(light_image=Image.open(path+"abstract_turtle_axle.png"), size=(240, 160)), 
+            CTkImage(light_image=Image.open(path+"overlap.png"), size=(60, 50)), 
+            CTkImage(light_image=Image.open(path+"gap.png"), size=(60, 50))
             ]
+        #Whether the first set of axle images or second should be shown
         self.axle_image_first=True
-        
-    def get_settings(self, get_settings):
-        #'wheelL 53.18\r\nwheelR 53.18\r\nAxle 79.04\r\nPenU  0.40\r\nPenD  0.30\r\nBacklashL 0\r\nBacklashR 0\r\n'
-        settings = get_settings()
-        #if no current settings, save current ones then load
-        if settings[:7] == "Invalid":
-            self.port_manager.send_command("save")
-            settings = get_settings()
-        print(settings)
-        split_settings = re.split(r'[ \r\n]+', settings)
-        print(split_settings)
-        
-        #stick all the settings into a dictionary
-        for i in range(0, (len(split_settings)-1), 2):
-            self.settings[split_settings[i]] = split_settings[i+1]
-        print(self.settings)
-        
-    def make_title(self, title_text):
-        ctk.CTkLabel(self.frame, text=title_text, font=("Roboto", 16)).place(relx=0.5, rely=0.05, anchor=ctk.CENTER)
     
-    def make_paragraph(self, label_text):
-        ctk.CTkLabel(
-            self.frame, text=label_text, font=self.paragraph_font, wraplength=self.pop_up_size-(0.1*self.pop_up_size)
-                     ).place(relx=0.5, 
-                                    rely=0.2, 
-                                    anchor=ctk.CENTER
-                                    )
-                                    
-    def make_button(self, frame, b_text, b_command):
-        button = ctk.CTkButton(frame, text=b_text, command=b_command)
-        button.place(relx=0.5, rely=0.8, anchor=ctk.CENTER)
-        return button
-    
-    
+    #Create the setup wizard pop up
     def setup_wizard(self):
-        
-        self.wizard_pop_up = ctk.CTkToplevel()
+        #Create pop up
+        self.wizard_pop_up = CTkToplevel()
         self.wizard_pop_up.grab_set()           # Stop other window interaction
         self.wizard_pop_up.focus_force()        # Set input focus to the popup
         self.wizard_pop_up.lift()               #make sure pop up is above other window
         self.wizard_pop_up.title("Setup Wizard")
         self.wizard_pop_up.geometry(str(self.pop_up_size)+"x"+str(self.pop_up_size))
-        
+        #Stops icon being overwritten by the default
         self.wizard_pop_up.after(200, lambda :self.wizard_pop_up.iconbitmap('./graphics/turtle_logo.ico'))
-        
-        self.frame = ctk.CTkFrame(self.wizard_pop_up, fg_color="transparent")
-        self.frame.pack(expand=True, fill=ctk.BOTH)
+        #Create frame to put items onto  the wizard pop up
+        self.frame = CTkFrame(self.wizard_pop_up, fg_color="transparent")
+        self.frame.pack(expand=True, fill=BOTH)
+        #Create initial title
         self.make_title("Setup turtlebot dimensions")
-        
-        if not self.port_manager.turtle_connection:
+        #If the turtlebot is not connected prompt the user to connect it first
+        if not self.backend_magic.get_settings():
             self.make_paragraph("Connect the turtlebot before setting it up")
             self.make_button(self.frame, "Close", self.wizard_pop_up.destroy)
+        #If the turtlebot is connected, brief the user with the equipment they will need and give them a button to start
         else:
-            #get saved values
-            self.get_settings(self.port_manager.get_settings)
             self.make_paragraph("You will need: \n*A ruler with mm\n*A big piece of paper (A3 or bigger recommended)")
-            self.make_button(self.frame, "Start", self.check_backlash_start)
+            self.make_button(self.frame, "Start", self.calibrate_backlash)
         
-    def check_backlash_start(self):
+    #Create a title for the setup wizard
+    def make_title(self, title_text):
+        CTkLabel(self.frame, text=title_text, font=("Roboto", 16)).place(relx=0.5, rely=0.05, anchor=CENTER)
+    
+    #Create a paragraph for the setup wizard to provide instructions
+    def make_paragraph(self, label_text):
+        CTkLabel(
+            self.frame, text=label_text, font=self.paragraph_font, wraplength=self.pop_up_size-(0.1*self.pop_up_size)
+                     ).place(relx=0.5, rely=0.2, anchor=CENTER)
+           
+    #Create a button for the setup wizard, places near the bottom                      
+    def make_button(self, frame, b_text, b_command):
+        button = CTkButton(frame, text=b_text, command=b_command)
+        button.place(relx=0.5, rely=0.8, anchor=CENTER)
+        return button
+    
+    
+    #Create basic layout for each setup wizard process
+    def basic_layout(self, layout):
+        #Clear previous layout
         for w in self.frame.winfo_children():
             w.destroy()
+        #Set and make title 
+        title = "Setup turtlebot: "+layout
+        self.make_title(title) 
+        #Based on required layout make paragraph or button
+        match layout:
+            case "Backlash":
+                self.make_paragraph("If the turtlebot moved forward, press Moved. Otherwise press No difference")
+            case "Backlash In Progress":   
+                self.make_paragraph("Press start for the turtlebot to start")
+                
+            case "Wheels":
+                self.make_paragraph("Press Draw to draw a line. Measure the length then input the value")
             
-        self.make_title("Setup turtlebot: Backlash")
-        self.make_paragraph("Press start for the turtlebot to start")
+            case "Axle":
+                self.make_paragraph("Press Draw to draw two circles. \nMeasure the distance of overlap/gap then input the values. \n(Make sure you recentre the turtlebot)")
+            case "Complete":
+                self.make_button(self.frame, "Finish", self.wizard_pop_up.destroy)
+        #Create bottom frrame for other contents
+        self.bottom_frame = CTkFrame(self.frame, fg_color="transparent")
+        self.bottom_frame.place(relx=0.5, rely=0.5, anchor=CENTER, relwidth=1)
         
-        ctk.CTkLabel(self.frame, image=self.turtle_image, text="").place(relx=0.5, rely=0.5, anchor=ctk.CENTER)
         
+    #Validate user input for a distance
+    def validate_input(self, length):
+        #Remove any newlines and negatives
+        length = length.replace("\n", "")
+        length_numeric = length.replace("-","")
+        #If no value was entered, show error messagebox (warning pop up) telling user to fill in all values
+        if len(length)==0:
+            messagebox.showerror("Wrong input", "Please fill in all values") 
+            #Return that values were not valid
+            return False
+        #If values that were non numerical were entered, show error message telling user to fill in numbers (remove point as can handle decimals)
+        elif not length_numeric.replace(".", "").isnumeric():
+            messagebox.showerror("Wrong input", "Please enter a valid number") 
+            #Return that values were not valid
+            return False
+        else:
+            #Return that values were valid
+            return True
+        
+        
+    #Create inputs for length (used for wheels and axle)
+    def make_length_inputs(self, two):
+        #Create frame to place inputs into
+        self.length_frame = CTkFrame(self.frame, fg_color="transparent")
+        self.length_frame.place(relx=0.5, rely=0.5, anchor=CENTER)
+        #Input view for first length with units
+        CTkLabel(self.length_frame, text="Length:", font=self.paragraph_font).pack(side=LEFT)
+        self.length_input = CTkTextbox(self.length_frame, height=40, width=60, font=self.paragraph_font)
+        self.length_input.pack(side=LEFT, padx=2)
+        CTkLabel(self.length_frame, text="mm", font=self.paragraph_font).pack(side=LEFT)
+        #If second input required
+        if two:
+            #Spacer
+            CTkLabel(self.length_frame, fg_color="transparent",width=40, text="").pack(side=LEFT)
+            #Input view for second length
+            CTkLabel(self.length_frame, text="Length2:", font=self.paragraph_font).pack(side=LEFT)
+            self.length_input2 = CTkTextbox(self.length_frame, height=40, width=60, font=self.paragraph_font)
+            self.length_input2.pack(side=LEFT, padx=2)
+            CTkLabel(self.length_frame, text="mm", font=self.paragraph_font).pack(side=LEFT)
+    
+    #BACKLASH
+    
+    #Begin the process of calibrating the backlash
+    def calibrate_backlash(self):
+        #Create UI with title and explanation
+        self.basic_layout("Backlash")
+        #Show abstract turtle image
+        CTkLabel(self.bottom_frame, image=self.turtle_image, text="").place(relx=0.5, rely=0.5, anchor=CENTER)
+        #Make start button to start backlash process
         self.make_button(self.frame, "Start", self.check_backlash_main)
         
+        
+    #Create the UI for the user to enter whether the turtlebot moves or not when testing the backlash
     def check_backlash_main(self):
-        self.min = 0
-        self.max =625
-        self.current = 0 
-        self.increment = 125
-        for w in self.frame.winfo_children():
-            w.destroy()
-            
-        # slow down
-        self.port_manager.send_command("s1 4000")  
-        self.port_manager.send_command("s7 0")
-        self.port_manager.send_command("s8 0")    
-        self.port_manager.send_command("f -"+str(self.max))
+        #Create UI with title and explanation
+        self.basic_layout("Backlash In Progress")
         
-            
-        self.make_title("Setup turtlebot: Backlash")
-        self.make_paragraph("If the turtlebot moved forward, press Moved. Otherwise press No difference")
+        #Create label showing current backlash value being tested
+        self.backlash_label = CTkLabel(self.bottom_frame, text="0", font=("Roboto", 14, "bold"))
+        self.backlash_label.place(anchor=CENTER, relx= 0.5, rely=0.5)
+        CTkLabel(self.bottom_frame, text="steps").place(anchor=CENTER, relx= 0.7, rely=0.5)
         
-        output_frame = ctk.CTkFrame(self.frame, fg_color="transparent")
-        output_frame.place(anchor=ctk.CENTER, relx= 0.5, rely=0.5)
-        
-        self.backlash_label = ctk.CTkLabel(output_frame, text=self.min, font=("Roboto", 14, "bold"))
-        self.backlash_label.place(anchor=ctk.CENTER, relx= 0.5, rely=0.5)
-        ctk.CTkLabel(output_frame, text="steps").place(anchor=ctk.CENTER, relx= 0.7, rely=0.5)
-        
-        self.back_button = ctk.CTkButton(self.frame, text="Restart", command=self.check_backlash_main, state=ctk.DISABLED, width=20)
+        #Create back button to restart backlash calibration process in case of user error
+        self.back_button = CTkButton(self.frame, text="Restart", command=self.check_backlash_main, state=DISABLED, width=20)
         self.back_button.place(relx=0.87, rely=0.01)
         
-        self.button_frame = ctk.CTkFrame(self.frame, fg_color="transparent")
-        self.button_frame.place(rely=0.8, anchor=ctk.CENTER, relx=0.5)
-        
-        
-        ctk.CTkButton(self.button_frame, text="No difference", command=self.backlash_forward).pack(side=ctk.LEFT)
-        ctk.CTkButton(self.button_frame, text="Moved", command=self.backlash_moved).pack(side=ctk.LEFT, pady=3, padx=3)
-        
-        self.backlash_forward()
-        
-        
-    def backlash_forward(self):  
-        self.current = round(self.current+self.increment)
-        if self.current>=self.max:
-            self.end_backlash()
-        else:
-            self.port_manager.send_command("f "+str(self.current))       #f lowercase
-            print("F:", self.min, self.increment, self.max)
-            self.backlash_label.configure(text=self.current)
-            
-        
-        
-    def backlash_moved(self):
-        self.min = round(self.current-self.increment, 5)
-        
-        self.port_manager.send_command("f -"+str(self.current))
-        
-        self.max = self.current
-        self.current = self.min
-        self.increment = round((self.increment/5),1)
-        print("N:", self.min, self.increment, self.max)
-            
-        if self.increment <125:
-            self.back_button.configure(state=ctk.NORMAL)
-        if self.increment<1:
-            self.end_backlash()
-        else:
-            self.backlash_label.configure(text=self.min)
-            #sleep for 1 sec so the reverse -> forward is noticeable
-            time.sleep(1)
-            self.backlash_forward()
-            
-    def end_backlash(self):
-        self.port_manager.send_command("o")
-        # speed up
-        self.port_manager.send_command("s1 1100")         
-        #self.port_manager.send_command("s7 "+str(self.max))
-        #self.port_manager.send_command("s8 "+str(self.max))
-        self.settings.update({"BacklashL": self.max})
-        self.settings.update({"BacklashR": self.max})
-        print(self.settings)
-        self.check_wheel_diameter()
-    
-    
-    def check_wheel_diameter(self):
-        for w in self.frame.winfo_children():
-            w.destroy() 
-            
-        self.make_title("Setup turtlebot: Wheels")
-        self.make_paragraph("Press Draw to draw a line. Measure the length then input the value")
-        
-        
-        self.bottom_frame = ctk.CTkFrame(self.frame, fg_color="transparent")
-        self.bottom_frame.place(relx=0.5)
-        
+        #Create buttons for the user to enter whether the turtlebot moves or not and at accordingly
+        self.button_frame = CTkFrame(self.frame, fg_color="transparent")
+        self.button_frame.place(rely=0.8, anchor=CENTER, relx=0.5)
+        CTkButton(self.button_frame, text="No difference", command=self.backend_magic.backlash_forward).pack(side=LEFT)
+        CTkButton(self.button_frame, text="Moved", command=self.backend_magic.backlash_moved).pack(side=LEFT, pady=3, padx=3)
+        #Start the process
+        self.backend_magic.backlash_start(self.calibrate_wheel_diameter, self.backlash_label.configure, lambda: self.back_button.configure(state=NORMAL))
+       
+     
+    #WHEEL DIAMETER
+       
+    #Create the UI for the user to calibrate the wheel diameters
+    def calibrate_wheel_diameter(self):
+        #Create UI with title and explanation
+        self.basic_layout("Wheels")
+        #Create button to draw line
         self.draw_diameter_button(True)
         
         
-        
+    #Create the button to draw the line to calibrate the diameter
     def draw_diameter_button(self, first=False):
+        #Destroy frame in way
         self.bottom_frame.destroy()
-        #self.wheel_draw_button.destroy()
-        self.image_label = ctk.CTkLabel(self.frame, image=self.diameter_image, text="")
-        self.image_label.place(relx=0.5, rely=0.5, anchor=ctk.CENTER)
-        if not first:
+        #Add image of what the turtlebot will do
+        self.image_label = CTkLabel(self.frame, image=self.diameter_image, text="")
+        self.image_label.place(relx=0.5, rely=0.5, anchor=CENTER)
+        #If the first time drawing the line have the button say Draw
+        if first:
+            button_text="Draw"
+        #Else remove the button and have text say Redraw (to acknowledge that the process is not starting from the beginning)
+        else:
             self.wheel_draw_button.destroy()
             button_text="Redraw"
-        else:
-            button_text="Draw"
+        #Create the button to draw the line
         self.wheel_draw_button = self.make_button(self.frame, button_text, self.draw_for_diameter)
+      
         
+    #Create the UI for the user to use once the line have been drawn and draw the line
     def draw_for_diameter(self):
+        #Clear previous image
         for w in self.image_label.winfo_children():
             w.destroy()
         self.image_label.destroy()
-        #self.wheel_draw_button.configure(text="Drawing")
-        #Wheel Diameter simple calibration test 
-        # slow down
-        self.port_manager.send_command("s1 4000")
-        # take up backlash
+        #Wheel diameter simple calibration test 
+        self.backend_magic.draw_for_diameter()
         
-        self.port_manager.send_command("F 10")
-        # lower pen
-        self.port_manager.send_command("D")
-        # move 30cm
-        self.port_manager.send_command("F300")
-        self.port_manager.send_command("U")
-        # reset motor speed (uS per step, 1100 fastest @ 7Volt)
-        self.port_manager.send_command("s1 1100")
-        self.port_manager.send_command("o")
-        #time.sleep(15)
+        #Clear length input area
+        self.bottom_frame = CTkFrame(self.frame, fg_color="transparent")
+        self.bottom_frame.place(relx=0.5, rely=0.5, anchor=CENTER)
+        #Make an input textbox to enter the length drawn and button to move to next stage
+        self.make_length_inputs(two=False)
         
-        #we assume it will be straight "enough" as the wheels are most likely printed at the same time so have been effected equally
-        
-        self.bottom_frame = ctk.CTkFrame(self.frame, fg_color="transparent")
-        self.bottom_frame.place(relx=0.5, rely=0.5, anchor=ctk.CENTER)
-        length_frame = ctk.CTkFrame(self.bottom_frame, fg_color="transparent")
-        length_frame.pack()
-        ctk.CTkLabel(length_frame, text="Length:", font=self.paragraph_font).pack(side=ctk.LEFT)
-        self.length_input = ctk.CTkTextbox(length_frame, height=40, width=60, font=self.paragraph_font)
-        self.length_input.pack(side=ctk.LEFT, padx=2)
-        ctk.CTkLabel(length_frame, text="mm", font=self.paragraph_font).pack(side=ctk.LEFT)
         self.wheel_draw_button.configure(text="Next", command=self.diameter_length_check)
         
         
+    #Check the length against the expecteed value and caibrate if necessary
     def diameter_length_check(self):
-        #get length
-        length = self.length_input.get("0.0",ctk.END)                         
-        print(length)
-        if self.validate_input(length):#input validation    
+        #Get length
+        length = self.length_input.get("0.0",END)  
+        #If valid numerical value is given                       
+        if self.validate_input(length):  
+            #If the length was correct move onto calibrating the axle length
             if float(length) == 300:
-                self.check_axle_length()
+                self.calibrate_axle_length()
+            #Otherwise, calculate new values and create draw button
             else:
                 self.wheel_draw_button.configure(text= "Adjusting")   #need to show user someting has happened based on their input
-                self.calculate_wheel_diameter(length)
+                self.backend_magic.calculate_wheel_diameter(length)
                 self.draw_diameter_button()
-            
-    def calculate_wheel_diameter(self, length):
-        #we have required distance dr and travelled distance dt
-        #error distance de = dt-dr (positive if travels too far)
-
-        # circumference of wheel, Wc= PI*Wd
-        # wheel rotations = dr/Wc
-        # percentage error = dt/dr
-        #since wheel diameter is proportional to circumference we change the wheel diameter by a proportional amount
-        #adjusted wheel diameter = dt/dr*Wd
         
-        #get expected wheel diameter
-        expected_diameter = self.settings.get("wheelL")
-        #Actual diameter = percentage of expected line drawn*expected diameter
-        #Round as turtlebot uses doubles so has a floating point threshold
-        actual_diameter = round((float(length)/300)*float(expected_diameter), 6)
         
-        #Set values for diameters
-        self.port_manager.send_command("s2 "+str(actual_diameter))
-        self.port_manager.send_command("s3 "+str(actual_diameter))
-        self.settings.update({"wheelL": actual_diameter})
-        self.settings.update({"wheelR": actual_diameter})
-        print(self.settings)
-
+    #AXLE LENGTH 
         
-    def check_axle_length(self):
-        for w in self.frame.winfo_children():
-            w.destroy()
-            
-        
-            
-        self.make_title("Setup turtlebot: Axle")
-        self.make_paragraph("Press Draw to draw two circles. \nMeasure the distance of overlap/gap then input the values. \n(Make sure you recentre the turtlebot)")
-        self.image_frame = ctk.CTkFrame(self.frame, fg_color="transparent")
-        self.image_frame.place(relx=0.5, rely=0.5, anchor=ctk.CENTER)
+    #Create initial UI for calibrating the axle length
+    def calibrate_axle_length(self):
+        #Create UI with title and explanation
+        self.basic_layout("Axle")
+        #Set the axle image
         self.set_axle_image()
+        #Create button to draw the two axle circles
         self.axle_button = self.make_button(self.frame, "Draw", self.draw_for_axle)
         
+    #Set axle image depending on if on first view or second   
     def set_axle_image(self):
-        for w in self.image_frame.winfo_children():
+        #Destroy current images
+        for w in self.bottom_frame.winfo_children():
             for wc in w.winfo_children():
                 wc.destroy()
             w.destroy()
+            
+        #If on first view show image with full expected turtlebot path
         if self.axle_image_first:
-            ctk.CTkLabel(self.image_frame, image=self.axle_images[0], text="").pack()
+            CTkLabel(self.bottom_frame, image=self.axle_images[0], text="").pack()
             self.axle_image_first = False
+        #Otherwise show gap/overlap instructions and images
         else:
-            ctk.CTkLabel(self.image_frame, text="If a gap is formed, \nwrite the number as a negative", font=("Roboto", 13)).pack(side=ctk.LEFT,padx=5)
-            ctk.CTkLabel(self.image_frame, image=self.axle_images[1], text="").pack(side=ctk.LEFT,padx=20)
-            ctk.CTkLabel(self.image_frame, image=self.axle_images[2], text="").pack(side=ctk.LEFT, padx=20)
+            CTkLabel(self.bottom_frame, text="If a gap is formed, \nwrite the number as a negative", font=("Roboto", 13)).pack(side=LEFT,padx=5)
+            CTkLabel(self.bottom_frame, image=self.axle_images[1], text="").pack(side=LEFT,padx=20)
+            CTkLabel(self.bottom_frame, image=self.axle_images[2], text="").pack(side=LEFT, padx=20)
             self.axle_image_first = True
-        
-        
-        
-    def make_axle_length_inputs(self):
-        #we assume it will be straight "enough" as the wheels are most likely printed at the same time so have been effected equally
-        self.length_frame = ctk.CTkFrame(self.frame, fg_color="transparent")
-        self.length_frame.place(relx=0.5, rely=0.65, anchor=ctk.CENTER)
-        #Input view for first length
-        ctk.CTkLabel(self.length_frame, text="Length:", font=self.paragraph_font).pack(side=ctk.LEFT)
-        self.length_input = ctk.CTkTextbox(self.length_frame, height=40, width=60, font=self.paragraph_font)
-        self.length_input.pack(side=ctk.LEFT, padx=2)
-        ctk.CTkLabel(self.length_frame, text="mm", font=self.paragraph_font).pack(side=ctk.LEFT)
-        #spacer
-        ctk.CTkLabel(self.length_frame, fg_color="transparent",width=40, text="").pack(side=ctk.LEFT)
-        #Input view for second length
-        ctk.CTkLabel(self.length_frame, text="Length2:", font=self.paragraph_font).pack(side=ctk.LEFT)
-        self.length_input2 = ctk.CTkTextbox(self.length_frame, height=40, width=60, font=self.paragraph_font)
-        self.length_input2.pack(side=ctk.LEFT, padx=2)
-        ctk.CTkLabel(self.length_frame, text="mm", font=self.paragraph_font).pack(side=ctk.LEFT)
-        
+
+
+    #Create the UI for the user to use once the two circles have been drawn
     def draw_for_axle(self):
-        #Axle length simple calibration test turn using only one wheel, if the wheel is calibrated any error will be due to the wheel spacing
-
-        #   slow down
-        self.port_manager.send_command("s1 3000")
-        # remove backlash compensation settings
-        self.port_manager.send_command("s7 0")
-        self.port_manager.send_command("s8 0")
-
-    # if Ar is Axle length (radius) and Wd is wheel diameter
-    # then circumference is Ac = 2*Ar*PI
-    # Wheel circumference Wc = Wd*PI 
-    # so we need Ac/Wc rotation of the wheel
-    # or (with 4096 steps per rotation) Ac/Wc*4096
-    # so Ws = Ad/Wd
-
-        self.port_manager.send_command("U")
-    # Take up backlash
-        self.port_manager.send_command("l 200")
-
-        self.port_manager.send_command("D")
-
-    #Turn for a circle: ((2*axle)/wheel diameter)*steps for rotation
-        self.port_manager.send_command("l "+str(round((((2*float(self.settings.get("Axle")))/float(self.settings.get("wheelL")))*4096))))
-
-        self.port_manager.send_command("U")
-        
-        self.port_manager.send_command("F 30")
-
-    #Take up backlash
-        self.port_manager.send_command("r 200")
-
-        self.port_manager.send_command("D")
-    #r ((2*79.6)/53.02)*4096
-    #r 12299
-        self.port_manager.send_command("r "+str(round((((2*float(self.settings.get("Axle")))/float(self.settings.get("wheelR")))*4096))))
-        self.port_manager.send_command("U")
-
-    # turn off motors
-        self.port_manager.send_command("F 30")
-        self.port_manager.send_command("s1 1100")
-        self.port_manager.send_command("o")
+        #Calibrate axle length using one wheel per circle 
+        self.backend_magic.draw_for_axle()
+        #Show images for guidance
         self.set_axle_image()
-        self.make_axle_length_inputs()
+        #Create inputs for the user to put in the gap/overlap values
+        self.make_length_inputs(two=True)
         self.axle_button.configure(text="Done", command=self.calculate_axle_length)
 
-    def calculate_axle_length(self):
-    # the circle ends either overlap or have a gap.
-    # to adjust axle take the average axle circumference error (Ace) of the two directions 
-    # using the set Ad (axle length)
-    # axle circumference is Ac = 2*Ad*PI
-    # the percentage error Ace = (Ac+Ace)/Ac
-    # so the axle is longer than the code thinks (calculated c is too small)
-    # new axle length is Ace*Ad.
 
-    # axle*(((2*axle*pi)-overlap)/(2*axle*pi))      
-    #+gap for gap and -overlap
-    #simplifies to axel-(overlap/2*pi) or axle+(gap/2*pi)
-        print("calc")
-        self.gap=False #remove
-        #get length
-        length = self.length_input.get("0.0",ctk.END)
-        #get length2
-        length2 = self.length_input2.get("0.0",ctk.END)
-        #check input is a valid number
+    #Calculate the axle length based on two inputs given
+    def calculate_axle_length(self):
+        #Get length
+        length = self.length_input.get("0.0",END)
+        #Get length2
+        length2 = self.length_input2.get("0.0",END)
+        #Check inputs are valid numbers
         if self.validate_input(length) and self.validate_input(length2):
-            #if correct axel found
-            if float(length) == 0 and float(length2) == 0:
-                self.save_all()
+            #Send to see if axle length correct or needs changing
+            calibrated = self.backend_magic.calculate_axle_length(length, length2, self.axle_button)
+            #If correct show that the setup wizard is complete
+            if calibrated:
+                print(calibrated)
+                self.basic_layout("Complete")
+                #Save the settings values
+                self.backend_magic.save()
+            #If not yet correct change UI to allow the user to redraw the axle circles with the newly calculated values
             else:
-                self.axle_button.configure(text= "Adjusting")
-                avg_len = (float(length)+float(length2))/2
-    
-                #get expected wheel diameter
-                expected_axle = float(self.settings.get("Axle"))
-    
-                #actual_axle = round(expected_axle-(avg_len/(2*math.pi)), 6)     
-                actual_axle = round(expected_axle-(avg_len/(math.pi)), 6)   
-    
-                #set values for axle
-                self.settings.update({"Axle": actual_axle})
-                self.port_manager.send_command("s4 "+str(actual_axle))
-                print(self.settings)
                 self.set_axle_image()
                 self.axle_button.configure(text= "Redraw", command=self.draw_for_axle)
                 self.length_frame.destroy()
-            
-            
-        
-    def validate_input(self, length):
-        length = length.replace("\n", "")
-        length_numeric = length.replace("-","")
-        if len(length)==0:
-            tk.messagebox.showerror("Wrong input", "Please fill in all values") 
-            return False
-        elif not length_numeric.replace(".", "").isnumeric():
-            print(length)
-            tk.messagebox.showerror("Wrong input", "Please enter a valid number") 
-            return False
-        else:
-            return True
-    
-    def save_all(self):
-        self.port_manager.send_command("s2 "+str(self.settings.get("wheelL")))
-        self.port_manager.send_command("s3 "+str(self.settings.get("wheelR")))
-        self.port_manager.send_command("s4 "+str(self.settings.get("Axle")))
-        
-        self.port_manager.send_command("s7 "+str(self.settings.get("BacklashL")))
-        self.port_manager.send_command("s8 "+str(self.settings.get("BacklashR")))               
-        #save the new settings
-        
-        for w in self.frame.winfo_children():
-            w.destroy()
-            
-        self.make_title("Setup complete")
-        
-        self.make_button(self.frame, "Finish", self.wizard_pop_up.destroy)
-        
-        self.port_manager.send_command("save")
-        

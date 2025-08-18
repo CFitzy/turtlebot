@@ -79,6 +79,7 @@ class Port_Manager():
                     data_str = self.port.read(self.port.in_waiting) 
                     #Decode into ascii
                     in_str = str(data_str, 'utf-8')
+                    print(in_str)
                     
                     #If AT received, send an OKPC message to establish connection
                     if "AT" == in_str:
@@ -138,6 +139,7 @@ class Port_Manager():
             self.write_to_turtle(command)
             #Wait until buffer has enough space for another command
             while self.awaiting_ack>self.buffer_number:
+                print("waiting")
                 sleep(0.01)
             
             
