@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Jun  5 13:44:36 2025
-
+Manage port access and sending commands to them
+For connecting to the USB dongle port and the turtlebot via it
 @author: cmf6
 """
-
 from serial.tools.list_ports import comports
 from serial import Serial
 from time import sleep
@@ -12,21 +12,27 @@ from threading import Thread
 
 class Port_Manager():
     def __init__(self, connection_states):
+        #Save given instance of Connection_Display in order to display it
         self.connection_states = connection_states
-        self.setup =False
+        #Whether port setup is being done
+        self.setup_state =False
+        #Whether the USB dongle and turtlebot are connected
         self.usb_connection = False
         self.turtle_connection = False
+        #Current port
         self.port = None
-        self.connection_states.update_states(self.usb_connection, self.turtle_connection)
-        self.sent = 0
-        #number of commands the buffer can take at a time
+        #Number of commands awaiting acknowledgement
+        self.awaiting_ack = 0
+        #Number of commands the buffer can take at a time
         self.buffer_number = 10
-        #current values saved to the EEPROM
+        #Current values saved to the EEPROM
         self.saved_settings = None
+        #Whether waiting to acquire settings
+        self.awaiting_settings = False
         
-        
-    def set_port(self, port_name):
-        #if not first 3 letters
+    #Open a port    
+    def open_port(self, port_name):
+        #If name does not start with COM apend /dev/ path (aka if not running on a Windows system)
         if not port_name[:3] == "COM":
             port_name = "/dev/"+port_name
         
@@ -34,78 +40,81 @@ class Port_Manager():
         self.close_port()
         self.turtle_connection = False
         self.connection_states.update_states(self.usb_connection, self.turtle_connection)
-        
-        self.ports = list(comports())
 
-        print("open port ", port_name)       #For debugging
+        #Open the port
         self.port = Serial(port_name, baudrate=115200)
-        self.setup =False
+        
+        #Update setup state as new connection that needs setting up
+        self.setup_state =False
+        #Update current states and display to show that the port has been opened
         self.usb_connection =True
         self.connection_states.update_states(self.usb_connection, self.turtle_connection)
+        #Start reading from the port
         Thread(target= self.read_port).start()
             
-    
+    #Get the names of the available ports and return as list
     def get_port_names(self):
         port_names = []
+        #For each port in the available ports
         for p in list(comports()):
+            #Append its name to the names list
             port_names.append(p.name)
-        
         return port_names
         
         
-        
+    #Establish connection with turtle and read from it   
     def read_port(self):
-        in_str =""
-        self.settings_acquired = True
-
-        #non blocking read
+        #Whilst the USB connection is open
         while (self.usb_connection):
-            #probe to turtle if setup until acknowledged
-            if(self.setup and not self.turtle_connection):
-                print("Hello")
+            #Probe to turtle if in setup state and no connection to ituntil acknowledged
+            if(self.setup_state and not self.turtle_connection):
                 self.port.write("=Hello\n".encode('utf-8'))
-                self.sent=self.sent+1
+                self.awaiting_ack=self.awaiting_ack+1
 
-                
-            try:# Check if incoming bytes are waiting to be read from the serial input buffer.
+            #Try reading from the turtle
+            try:
+                #Check if there are incoming bytes waiting to be read
                 if (self.port.in_waiting > 0):
-                    # read the bytes and convert from binary array to ASCII
+                    #Read the bytes
                     data_str = self.port.read(self.port.in_waiting) 
-                    #decode into ascii
+                    #Decode into ascii
                     in_str = str(data_str, 'utf-8')
-                    print(in_str)
-
-                    if "AT" == in_str:
-                        #encode into bytes (won't compile to send otherwise)
-                        out = ('OKPC').encode('utf-8')
-                        print("outgoing: ", out)
-                        #print(self.port.write(out))
-                        self.setup=True
-                        self.turtle_connection = False
-                        in_str = ""
                     
-                    if "=Hello ACK" in in_str:
+                    #If AT received, send an OKPC message to establish connection
+                    if "AT" == in_str:
+                        #Encode into bytes (won't compile to send otherwise)
+                        out = ('OKPC').encode('utf-8')
+                        print("Out: ", out)
+                        #Put into mid-setup state to send message
+                        self.setup_state=True
+                        
+                    #If acknowledging initial Hello, set turtle connection to true and pdate display
+                    elif "=Hello ACK" in in_str:
                         self.turtle_connection = True
                         self.connection_states.update_states(self.usb_connection, self.turtle_connection)
-                    if "ACK" in in_str:         #check for NACK
-                        self.sent=self.sent-1
-                        if "NACK" in in_str:
-                            raise Exception("Turtlebot command failed to execute")
-                        #print("ACKED", self.sent)
-                    if not self.settings_acquired and "wheel" in in_str:
-                        in_str = in_str.lstrip(")")
                         
+                    #Waiting for settings and response contains expected wheel characters
+                    elif self.awaiting_settings and "wheel" in in_str:
                         #Put input into saved settings and set acquired to true
                         self.saved_settings = in_str
-                        self.settings_acquired = True
+                        self.awaiting_settings = False
                         
+                        
+                    #If acknowledgemnt received, reduce number of ones being waited for by one
+                    if "ACK" in in_str:        
+                        self.awaiting_ack=self.awaiting_ack-1
+                        #Check for negative acknowledgement (for when turtlebot commands encounter an unexpected command)
+                        if "NACK" in in_str:
+                            raise Exception("Turtlebot command failed to execute")
+            #If exception is thrown            
             except:
+                #Close port
+                self.close_port()
+                #Update display
                 self.usb_connection = False
                 self.turtle_connection = False
                 self.connection_states.update_states(self.usb_connection, self.turtle_connection)
-                print("port disconnected", self.usb_connection)
-                self.close_port()
-                    
+            #Wait a second before looping/reading again
             sleep(1)
 
     
@@ -124,22 +133,22 @@ class Port_Manager():
         #If turtlebot is connected
         if self.turtle_connection:
             #Increase number of messages sent
-            self.sent = self.sent+1
+            self.awaiting_ack = self.awaiting_ack+1
             #Encode and send command
             self.write_to_turtle(command)
             #Wait until buffer has enough space for another command
-            while self.sent>self.buffer_number:
+            while self.awaiting_ack>self.buffer_number:
                 sleep(0.01)
             
             
     #Get turtlebot settings from EEPROM    
     def get_settings(self):
         #Set to waiting for settings
-        self.settings_acquired = False
+        self.awaiting_settings = True
         #Encode and send get command
         self.write_to_turtle("get")
         #Wait until settings sent back
-        while not self.settings_acquired:
+        while self.awaiting_settings:
             sleep(0.01)
         #Return the settings sent back
         return self.saved_settings

@@ -150,7 +150,7 @@ class Top_Menu():
     #Select and open picked port
     def select_port(self, choice):
         #Send picked portname to the port manager to open it
-        self.port_manager.set_port(choice)
+        self.port_manager.open_port(choice)
         #Close port picking pop up
         self.connection_pop_up.destroy()
             
