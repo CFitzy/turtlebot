@@ -131,7 +131,6 @@ class Turtle_Simulation():
         x = int(line)*sin(radians(angle))
         #Get vertical distance
         y = int(line)*cos(radians(angle))
-        print("x,y", x, y, angle)
         #Horizontal: If positive add to the positive direction, else add to the negative
         if x>0:
             self.pos_horizontal = self.pos_horizontal+x

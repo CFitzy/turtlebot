@@ -300,7 +300,7 @@ class Setup_Wizard():
         #Check inputs are valid numbers
         if self.validate_input(length) and self.validate_input(length2):
             #Send to see if axle length correct or needs changing
-            calibrated = self.backend_magic.calculate_axle_length(length, length2, self.axle_button)
+            calibrated = self.backend_magic.calculate_axle_length(length, length2)
             #If correct show that the setup wizard is complete
             if calibrated:
                 print(calibrated)

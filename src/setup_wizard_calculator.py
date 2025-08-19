@@ -180,7 +180,7 @@ class Setup_Wizard_Calculator():
         self.port_manager.send_command("o")
         
     #Calculate axle length based upon the overlap or gap given and the the expected axle length
-    def calculate_axle_length(self, length, length2, axle_button):
+    def calculate_axle_length(self, length, length2):
         #If all zeros then axle was correct so move to saving
         if float(length) == 0 and float(length2) == 0:
             #Return that the value matched
