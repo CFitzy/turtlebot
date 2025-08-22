@@ -62,16 +62,21 @@ class User_Turtle():
                 self.port_manager.send_command("T-"+str(number))
         
     #Move the turtle in a curve of length arc_len with an angle of angle
-    def curve(self, arc_len, angle):
-        #Work out radius from angle and arc length
-        radius= (180*arc_len)/(angle*pi)
+    def curve(self, arc_len, angle): 
         #If in compile mode put in commands list with comma to seperate values
         if self.compile_mode:
             self.commands_list.append("C"+str(arc_len)+","+str(angle))
         else: 
             #Send code to the turtle simulation in Python Turtle graphics code
-            #The radius is negative so it turns right (same way as turtlebot)
-            self.turtle_sim.run_code("turtle.circle(-"+str(radius)+","+str(angle)+")", output= "turtle.curve("+str(arc_len)+","+str(angle)+")")
+            #Work out radius from angle and arc length and handle for simulation
+            if angle>0:
+                radius= (180*arc_len)/(angle*pi)
+                #The radius is negative so it turns right (same way as turtlebot)
+                self.turtle_sim.run_code("turtle.circle(-"+str(radius)+","+str(angle)+")", output= "turtle.curve("+str(arc_len)+","+str(angle)+")")
+            else:
+                #Have simulation treat as a forward movement, outputting that it is a curve
+                self.turtle_sim.run_code("turtle.forward("+str(arc_len)+")", output= "turtle.curve("+str(arc_len)+","+str(angle)+")")
+            
             #If turtlebot connected send it the curve command
             if self.port_manager.turtle_connection: 
                 self.port_manager.send_command("C"+str(arc_len)+" "+str(angle))        

@@ -95,6 +95,9 @@ class Turtle_Simulation():
                 self.text_output.configure(state="disabled")
                 #Stop the turtle from moving further
                 self.stop_turtle()
+        #Raise a stopped exception to stop the program
+        else:
+            raise Exception("Stopped")
             
     
     #Set the turtle to the stopped state  
@@ -128,9 +131,9 @@ class Turtle_Simulation():
     #Turn a given vector (direction and angle) into vertical and horizntal components and add to appropriate direction
     def turn_vector_into_components(self, angle, line):
         #Get horizontal distance
-        x = int(line)*sin(radians(angle))
+        x = float(line)*sin(radians(angle))
         #Get vertical distance
-        y = int(line)*cos(radians(angle))
+        y = float(line)*cos(radians(angle))
         #Horizontal: If positive add to the positive direction, else add to the negative
         if x>0:
             self.pos_horizontal = self.pos_horizontal+x
@@ -164,47 +167,55 @@ class Turtle_Simulation():
         
         #For each code line, treat as required
         for line in lines:
+            #If a curve movement   
+            if line[0] == "C":
+                #Split into angle and arc length
+                values = line[1:].split(",")
+                curve_angle = float(values[1])
+                arc = float(values[0])
+                #Test if either value is zero
+                #If angle is zero treat as forward
+                if curve_angle == 0:
+                    line="F"+str(arc)
+                #If arc is zero treat as right turn
+                elif arc == 0:
+                    line="R"+str(curve_angle)
+                #Otherwise treat as curve
+                else:
+                    #Hold the angles
+                    curve_angles = []
+                    #Set angle amount left to process
+                    angle_left = curve_angle
+                    
+                    #Split the given angle into 90 degree segments of angle and put in list
+                    for i in range(0, ceil(curve_angle/90)):
+                        if angle_left>90:
+                            curve_angles.append(90)
+                            angle_left= angle_left-90
+                        else:
+                            curve_angles.append(angle_left)
+                                                
+                    #For angles in the segment's angle list
+                    for a in curve_angles:
+                        #Calculate angle
+                        angle = (angle+((a/90)*45))%360
+                        
+                        #Calculate arc length for segment (proportion of total arc length)
+                        sector_arc = (a/curve_angle)*arc
+                        #Calculate distance moved (chord length)
+                        distance = (180*sector_arc*sin(radians(a)))/(a*pi)
+                        #Break line into vertical and horizontal components
+                        self.turn_vector_into_components(angle, distance)
             #If a forward movement, break line into components for the angle the turtle is currently moving
             if line[0] == "F":
                 self.turn_vector_into_components(angle, line[1:])
- 
-            #If a curve movement   
-            elif line[0] == "C":
-                #Split into angle and arc length
-                values = line[1:].split(",")
-                curve_angle = int(values[1])
-                arc = float(values[0])
-                #Hold the angles
-                curve_angles = []
-                #Set angle amount left to process
-                angle_left = curve_angle
-                
-                #Split the given angle into 90 degree segments of angle and put in list
-                for i in range(0, ceil(curve_angle/90)):
-                    if angle_left>90:
-                        curve_angles.append(90)
-                        angle_left= angle_left-90
-                    else:
-                        curve_angles.append(angle_left)
-                                            
-                #For angles in the segment's angle list
-                for a in curve_angles:
-                    #Calculate angle
-                    angle = (angle+((a/90)*45))%360
-                    
-                    #Calculate arc length for segment (proportion of total arc length)
-                    sector_arc = (a/curve_angle)*arc
-                    #Calculate distance moved (chord length)
-                    distance = (180*sector_arc*sin(radians(a)))/(a*pi)
-                    #Break line into vertical and horizontal components
-                    self.turn_vector_into_components(angle, distance)
-                
+                   
             #If left or right change current angle direction
             elif line[0] == "R":
                 angle = (angle+float(line[1:]))%360
             elif line[0] == "L":
                 angle = (angle-float(line[1:]))%360
-
+        
         #Calculate required scaling in each direction
         #If moved West
         if self.neg_horizontal < 0:
@@ -244,3 +255,5 @@ class Turtle_Simulation():
             self.turtle.shapesize(stretch_wid=self.scale, stretch_len=self.scale, outline=1)
         else:
             self.turtle.shapesize(stretch_wid=min_turtle_scale, stretch_len=min_turtle_scale, outline=1)
+            
+        

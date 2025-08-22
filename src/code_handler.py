@@ -40,7 +40,10 @@ class Code_Handler():
         #If exception, output it to the output area
         except Exception as e:
             print("E:",e)
+            #Put text output into a writable state
             text_output.configure(state="normal")
+            #Append exception to the end
             text_output.insert(END, text="\n"+str(e))
+            #Put text output into a non writable state
             text_output.configure(state="disabled")
             pass

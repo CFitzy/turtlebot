@@ -171,12 +171,6 @@ class Main():
     def stop(self):
         #Stop the turtle simulation
         self.turtle_view.stop_turtle()
-        #Put text output into a writable state
-        self.text_output.configure(state="normal")
-        #Append Stopped to the end
-        self.text_output.insert(ctk.END, text="Stopped")
-        #Put text output into a non writable state
-        self.text_output.configure(state="disabled")
         #Disable stop button
         self.stop_button.configure(state="disabled")
         
