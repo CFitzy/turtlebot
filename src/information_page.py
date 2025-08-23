@@ -37,6 +37,6 @@ class Info_Page():
         self.pop_up.after(200, lambda :self.pop_up.iconbitmap('./graphics/turtle_logo.ico'))
         
         #Put contents of HTML file into a ScrolledText and pack into TopLevel
-        html = HTMLScrolledText(self.pop_up, html=RenderHTML('html_info/information_page.html'), state="disabled")
+        html = HTMLScrolledText(self.pop_up, html=RenderHTML('html_info/information_page.html'), state="disabled", padx=10)
         html.pack(fill="both", expand=True)
         
