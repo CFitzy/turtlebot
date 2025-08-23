@@ -69,17 +69,25 @@ class User_Turtle():
         else: 
             #Send code to the turtle simulation in Python Turtle graphics code
             #Work out radius from angle and arc length and handle for simulation
-            if angle>0:
+            if not angle == 0:
                 radius= (180*arc_len)/(angle*pi)
-                #The radius is negative so it turns right (same way as turtlebot)
-                self.turtle_sim.run_code("turtle.circle(-"+str(radius)+","+str(angle)+")", output= "turtle.curve("+str(arc_len)+","+str(angle)+")")
+                if radius<=0:
+                    #If the radius is negative the angle needs changing to negative value to move in correct direction
+                    self.turtle_sim.run_code("turtle.circle("+str(-1*radius)+","+str(-1*angle)+")", output= "turtle.curve("+str(arc_len)+","+str(angle)+")")
+                else:
+                    #The radius is negative so it turns right (same way as turtlebot)
+                    self.turtle_sim.run_code("turtle.circle("+str(-1*radius)+","+str(angle)+")", output= "turtle.curve("+str(arc_len)+","+str(angle)+")")
             else:
                 #Have simulation treat as a forward movement, outputting that it is a curve
                 self.turtle_sim.run_code("turtle.forward("+str(arc_len)+")", output= "turtle.curve("+str(arc_len)+","+str(angle)+")")
             
             #If turtlebot connected send it the curve command
             if self.port_manager.turtle_connection: 
-                self.port_manager.send_command("C"+str(arc_len)+" "+str(angle))        
+                #Temporary measure to get correct behaviour that was discussed as the intention (angle of zero should give a straight line)
+                if angle==0:
+                    self.port_manager.send_command("F"+str(arc_len))  
+                else:
+                    self.port_manager.send_command("C"+str(arc_len)+" "+str(angle))        
     
 
     #Move the pen down   

@@ -139,7 +139,6 @@ class Turtle_Simulation():
             self.pos_horizontal = self.pos_horizontal+x
         else:
             self.neg_horizontal = self.neg_horizontal+x
-          
         #Vertical: If positive add to the positive direction, else add to the negative
         if y>0:
             self.pos_vertical = self.pos_vertical+y
@@ -151,7 +150,7 @@ class Turtle_Simulation():
     def work_out_scale(self, lines):
         #Work out rough starting spot of the turtle
         width_scale= self.max_canvwidth/1700
-        height_scale = self.max_canvheight/900
+        height_scale = self.max_canvheight/1500
         v_offset =self.canvas.winfo_height()*height_scale
         h_offset=self.canvas.winfo_width()*width_scale
         
@@ -188,12 +187,16 @@ class Turtle_Simulation():
                     angle_left = curve_angle
                     
                     #Split the given angle into 90 degree segments of angle and put in list
-                    for i in range(0, ceil(curve_angle/90)):
+                    for i in range(0, ceil(abs(curve_angle)/90)):
                         if angle_left>90:
                             curve_angles.append(90)
                             angle_left= angle_left-90
+                        elif angle_left<-90:
+                            curve_angles.append(-90)
+                            angle_left= angle_left+90
                         else:
                             curve_angles.append(angle_left)
+                    print(curve_angles)
                                                 
                     #For angles in the segment's angle list
                     for a in curve_angles:
@@ -236,6 +239,7 @@ class Turtle_Simulation():
         if self.pos_vertical >0:
             #Turtle start position(-padding) divided by the distance moved North
             v_pos_scale= (v_offset-padding)/(abs(self.pos_vertical))
+            print(v_pos_scale, (v_offset-padding), abs(self.pos_vertical))
         
         #New scale is set to the smallest scale required
         new_scale = min(h_neg_scale, h_pos_scale, v_neg_scale, v_pos_scale)

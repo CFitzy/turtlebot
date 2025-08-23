@@ -139,7 +139,6 @@ class Port_Manager():
             self.write_to_turtle(command)
             #Wait until buffer has enough space for another command
             while self.awaiting_ack>self.buffer_number:
-                print("waiting")
                 sleep(0.01)
             
             
