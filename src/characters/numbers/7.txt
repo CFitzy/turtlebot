@@ -1,4 +1,6 @@
+#--------7-START-------
 seven_var = 15
+
 turtle.up()
 turtle.left(90)
 turtle.forward(2*seven_var)
@@ -10,3 +12,4 @@ turtle.forward(2*seven_var)
 turtle.up()
 turtle.left(90)
 turtle.forward(seven_var)
+#--------7-END-------

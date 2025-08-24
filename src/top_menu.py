@@ -151,6 +151,8 @@ class Top_Menu():
     def select_port(self, choice):
         #Send picked portname to the port manager to open it
         self.port_manager.open_port(choice)
+        #Change port label
+        self.port_label.configure(text=self.port_manager.port.name)
         #Close port picking pop up
         self.connection_pop_up.destroy()
             

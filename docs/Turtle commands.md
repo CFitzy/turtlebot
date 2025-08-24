@@ -1,24 +1,29 @@
 # Turtle basics
+In the folloqwing list *d* is a decimal value and *n* is an integer value.
 
 ## Turtle Commands
-* l*n* - left wheel n steps (4096 per wheel rotation)
-* r*n* - right wheel n steps (4096 per wheel rotation)
-* f*n* - forward n steps (-n backward)
-* t*n* - turn n steps (+ clockwise, -anticlockwise)
-* F*mm* - forward F milimeters (-mm backward)
-* T*d* - turn d degrees (+ clockwise, -anticlockwise)
+* l*n* - left wheel *n* steps (4096 per wheel rotation)
+* r*n* - right wheel *n* steps (4096 per wheel rotation)
+* f*n* - forward *n* steps (-*n* backward)
+* t*n* - turn *n* steps (+ clockwise, -anticlockwise)
+* F*d* - forward *d* milimeters (-mm backward)
+* T*d* - turn *d* degrees (+ clockwise, -anticlockwise)
+* C*d* *d*- forward parameter 1 degrees and simultaneously turn parameter 2 degrees
 * a*n* - acceleration number of steps between slow and fast speed
 * o - motors off
 * u - pen up to max height
 * d - pen down to min height
-* U*d* - pen up to d height (0<d<=1, 0=u height, 1=d height). Note this does not persist after power down. Use s5 setting to set power up default.
+* U*d* - pen up to *d* height (0<*d*<=1, 0=u height, 1=d height). Note this does not persist after power down. Use s5 setting to set power up default.
 * U - pen up to previously set height
-* D*d* - pen down to d height (0<d<=1, 0=u height, 1=d height). Note this does not persist after power down. Use s6 setting to set power up default.
+* D*d* - pen down to d height (0<*d*<=1, 0=u height, 1=*d* height). Note this does not persist after power down. Use s6 setting to set power up default.
 * D - pen down to previously set height
 * =text - display text on OLED screen
-* x*d* run step streaming program d
+* x*d* run step streaming program *d*
+* K*n* set the acknowledgement counter (0 if no *n*) specified.
+* save - save the current set of configs to the EEPROM
+* get - return the list of configurations and their values
 
-Note that the lower case commands f,t do not ina;ude backlash compensation and directly drive the motors. The normal commands (capital letters) do include backlash compensation (to reduce motor gear slop effects when motors change direction) if non zero compensation values are set.
+Note that the lower case commands f,t do not include backlash compensation and directly drive the motors. The normal commands (capital letters) do include backlash compensation (to reduce motor gear slop effects when motors change direction) if non zero compensation values are set.
 
 ## Settings
 
@@ -26,20 +31,14 @@ Note that the lower case commands f,t do not ina;ude backlash compensation and d
 * s2*d* - set left wheel diameter in mm
 * s3*d* - set right wheel diameter in mm
 * s4*d* - set wheel spacing (axle length) in mm
-* s5*d* - set default user pen up position (0.1 - 1.0)
-* s6*d* - set default user pen down position (0.0 - 1.0)
+* s5*d* - set default 'U' command pen up position (0.1 - 1.0)
+* s6*d* - set default 'D' connamd pen down position (0.0 - 1.0)
 * s7*i* - set left wheel backlash (in motor steps)
 * s8*i* - set right wheel backlash (in motor steps)
 
 ###Permanent settings are
 
-s2 wheelDiameterL; // wheel diameter in mm x 10
-s3 wheelDiameterR; // wheel diameter in mm x 10
-s4 wheelSpacing; // wheel spacing ('axle length') x10
-s5 penUp; // pen up position (U command)
-s6 penDown; // pen down position (D command)
-s7 left wheel backlash
-s8 roght wheel backlash
+Settings values s2 - s8 are stored in EEPROM and are permanent after power cycling. They are removed after firmware update however.
 
 #Java code
 

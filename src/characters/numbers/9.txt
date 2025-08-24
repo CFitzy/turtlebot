@@ -1,3 +1,4 @@
+#--------9-START-------
 nine_var = 15
 turtle.down()
 turtle.forward(nine_var)
@@ -15,11 +16,4 @@ turtle.forward(nine_var)
 turtle.left(90)
 turtle.forward(nine_var)
 turtle.up()
-
-
-
-
-
-
-
-
+#--------9-END-------

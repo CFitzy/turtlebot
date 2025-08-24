@@ -17,6 +17,7 @@ from customtkinter import DISABLED
 from customtkinter import BOTH
 from customtkinter import LEFT
 from customtkinter import END
+from time import sleep
 from PIL import Image
 from setup_wizard_calculator import Setup_Wizard_Calculator
 
@@ -136,7 +137,7 @@ class Setup_Wizard():
     def make_length_inputs(self, two):
         #Create frame to place inputs into
         self.length_frame = CTkFrame(self.frame, fg_color="transparent")
-        self.length_frame.place(relx=0.5, rely=0.5, anchor=CENTER)
+        self.length_frame.place(relx=0.5, rely=0.6, anchor=CENTER)
         #Input view for first length with units
         CTkLabel(self.length_frame, text="Length:", font=self.paragraph_font).pack(side=LEFT)
         self.length_input = CTkTextbox(self.length_frame, height=40, width=60, font=self.paragraph_font)
@@ -303,8 +304,9 @@ class Setup_Wizard():
             calibrated = self.backend_magic.calculate_axle_length(length, length2)
             #If correct show that the setup wizard is complete
             if calibrated:
-                print(calibrated)
                 self.basic_layout("Complete")
+                #Wait a moment before trying to save
+                sleep(1)
                 #Save the settings values
                 self.backend_magic.save()
             #If not yet correct change UI to allow the user to redraw the axle circles with the newly calculated values

@@ -1,4 +1,6 @@
+#--------1-START-------
 one_var = 15
+
 turtle.up()
 turtle.left(90)
 turtle.forward(1.75*one_var)
@@ -10,3 +12,4 @@ turtle.forward(2*one_var)
 turtle.up()
 turtle.left(90)
 turtle.forward(one_var)
+#---------1-END--------

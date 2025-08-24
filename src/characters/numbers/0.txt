@@ -1,3 +1,4 @@
+#--------0-START-------
 zero_var = 15
 
 turtle.left(90)
@@ -12,3 +13,4 @@ turtle.forward(zero_var)
 turtle.up()
 turtle.right(180)
 turtle.forward(2*zero_var)
+#---------0-END--------

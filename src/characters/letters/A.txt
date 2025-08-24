@@ -1,3 +1,4 @@
+#--------A-START-------
 a_var = 20
 
 turtle.right(-70)
@@ -16,6 +17,4 @@ turtle.forward(1.5*a_var)
 turtle.up()
 turtle.left(70)
 turtle.forward(a_var)
-
-
-
+#--------A-END-------

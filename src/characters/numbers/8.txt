@@ -1,3 +1,4 @@
+#--------8-START-------
 eight_var = 15
 
 turtle.left(90)
@@ -20,3 +21,4 @@ turtle.forward(eight_var)
 turtle.up()
 turtle.right(180)
 turtle.forward(2*eight_var)
+#--------8-END-------

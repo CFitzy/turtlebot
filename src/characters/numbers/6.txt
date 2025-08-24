@@ -1,3 +1,4 @@
+#--------6-START-------
 six_var = 15
 
 turtle.left(90)
@@ -21,3 +22,4 @@ turtle.forward(2*six_var)
 turtle.right(90)
 turtle.forward(six_var)
 turtle.left(90)
+#---------6-END--------
