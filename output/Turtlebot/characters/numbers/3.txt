@@ -1,0 +1,24 @@
+#--------3-START-------
+three_var = 15
+
+turtle.left(90)
+turtle.forward(2*three_var)
+turtle.down()
+turtle.right(90)
+turtle.forward(three_var)
+turtle.right(90)
+turtle.forward(three_var)
+turtle.up()
+turtle.right(90)
+turtle.forward(0.75*three_var)
+turtle.right(180)
+turtle.down()
+turtle.forward(0.75*three_var)
+turtle.right(90)
+turtle.forward(three_var)
+turtle.right(90)
+turtle.forward(three_var)
+turtle.up()
+turtle.right(180)
+turtle.forward(2*three_var)
+#---------3-END--------

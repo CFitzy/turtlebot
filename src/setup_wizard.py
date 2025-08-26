@@ -211,6 +211,7 @@ class Setup_Wizard():
         #Else remove the button and have text say Redraw (to acknowledge that the process is not starting from the beginning)
         else:
             self.wheel_draw_button.destroy()
+            self.length_frame.destroy()
             button_text="Redraw"
         #Create the button to draw the line
         self.wheel_draw_button = self.make_button(self.frame, button_text, self.draw_for_diameter)
@@ -246,7 +247,9 @@ class Setup_Wizard():
             #Otherwise, calculate new values and create draw button
             else:
                 self.wheel_draw_button.configure(text= "Adjusting")   #need to show user someting has happened based on their input
+                print("in else")
                 self.backend_magic.calculate_wheel_diameter(length)
+                print("after")
                 self.draw_diameter_button()
         
         

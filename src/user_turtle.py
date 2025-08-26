@@ -59,7 +59,7 @@ class User_Turtle():
             self.turtle_sim.run_code("turtle.left("+str(number)+")")
             #If turtlebot connected send it the turn command (negative as anticlockwise)
             if self.port_manager.turtle_connection:
-                self.port_manager.send_command("T-"+str(number))
+                self.port_manager.send_command("T"+str(-1*number))
         
     #Move the turtle in a curve of length arc_len with an angle of angle
     def curve(self, arc_len, angle): 

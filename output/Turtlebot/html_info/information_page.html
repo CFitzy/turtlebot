@@ -1,0 +1,132 @@
+<html>
+<body>
+<h1>Turtlebot project <img src="./html_info/turtle_logo_diagonal.png" width=75 height=75></h1>
+
+<!--Contents-->
+<nav class="menu">
+  <ul>
+	<li>Introduction</li>
+    <li>Commands</li>
+	<li>Advanced coding features</li>
+    <li>Connecting the turtlebot</li>
+	<li>Troubleshooting</li>
+    <li>About the turtlebot</li>
+  </ul>
+</nav>
+
+<!--Introduction-->
+<h2 id="intro">Introduction</h2>
+<p>Welcome to the introduction pages of the turtlebot project. <div>Here you can find out more about the project and how to use it.
+The turtlebot project allows you to write Python code to control the turtlebot as well as a simulation of it.
+Further information on the turtlebot can be viewed in the About section.
+Happy coding!
+</p>
+
+<!--Current implemented commands-->
+<h2 id="commands">Commands</h2>
+<h3>Basic commands</h3>
+<h4>turtle.down()</h4>
+<p>Moves the turtlebot's pen down to start drawing</p>
+<h4>turtle.up()</h4>
+<p>Moves the turtlebot's pen up to stop drawing</p>
+<h4>turtle.forward(n)</h4>
+<p>Moves the turtlebot forward by n millimeters</p>
+<h4>turtle.right(n)</h4>
+<p>Turns the turtlebot clockwise by n degrees</p>
+<h4>turtle.left(n)</h4>
+<p>Turns the turtlebot anticlockwise by n degrees</p>
+<h4>turtle.curve(arc length, angle)</h4>
+<p>Moves the the turtlebot forward by the specified arc length in millimeters around a curve of angle degrees. \n
+<br>turtle.curve(100, 60) produces:<img src="./html_info/turtle_curve_function.png" width=100 height=100></p>
+
+
+<h4>turtle.message("text")</h4>
+<p>Show the word text on the turtlebot screen (under 10 characters)</p>
+
+
+<!--Loops, comments and importing-->
+<h2>Advanced coding features</h2>
+
+<h3>Comments</h3>
+<p>Type <b>#</b> before what you want to be commented out. This means that it will be ignored when you press the run button</p>
+
+<h3>For Loops</h3>
+<p>For loops can be used to repeat commands for a finite amount of times</p>
+<p>To repeat a command four times we can write: </p>
+<h4>
+<pre>
+for i in range(4):
+	<em>
+	do something
+	</em>
+</pre>
+</h4>		
+
+<h3>While Loops</h3>
+<p>While loops can be used to repeat commands until a condition is true</p>
+<p>The basic layout is: </p>
+<h4>
+<pre>
+while condition:
+	<em>
+	do something
+	</em>
+</pre>
+</h4>	
+<p><b>Caution</b> can  lead to infinite loops which will cause the turtle app to crash</p>
+
+<h3>Importing modules</h3>
+<p>Modules can be imported to provide additional things to do</p>
+<p>One example of this is to use the random library to get the turtle to move a random number between 0 and 100 forwards</p>
+<h4>
+<pre>
+import random
+length = random.randint(0, 100)
+turtle.forward(length)
+</pre>
+</h4>	
+<p><b>Caution</b> can  lead to infinite loops which will cause the turtle app to crash</p>
+
+<!--Connecting the turtlebot-->
+<h2 id="connecting">Connecting to the turtle</h2>
+<h3>Initial connection</h3>
+<ol>
+	<li>Launch the application</li>
+    <li>Plug in the turtle</li>
+	<li>Click on Settings on the top bar</li>
+	<li>Click on Select port</li>
+	<li>Select the port that the USB dongle is connected to via the dropdown</li>
+    <li>If the USB light is green, press the button on the turtle</li>
+    <li>Wait a moment, if the turtle says "Hello", you have successfully connected</li>
+</ol>
+<h3>Changing the connected port</h3>
+<p>Follow the same steps as for setting up the initial connection</p>
+
+<!--Common troubleshooting questions-->
+<h3>Troubleshooting</h3>
+<ul>
+	<li>Is the turtlebot turned on and displaying "Turtle" on the screen?</li>
+	<li>Is the USB dongle plugged in?</li>
+	<li>Have you selected a port?</li>
+	<li>Have you pressed the button on the turtle?</li>
+	<li>Are both lights green at the top?</li>
+    <li>If the USB light is green, press the button on the turtle</li>
+	<li>If the turtlebot still will not connect check that the lights on the turtle's bluetooth module and the USB dongle are both solid</li>
+	<ul>
+		<li>If still flashing press both of their buttons</li>
+		<li>Once solid redo the connection steps</li>
+	</ul>
+</ul>
+
+<!--Extra turtlebot information-->
+<h3>About the turtlebot</h3>
+<p>
+The turtlebot has been created with a mixture of 3D printing and other components including an ardunio. The chasis was designed using OpenSCAD. <br>
+<img src="./html_info/TurtleSCAD1.png" width=300 height=300><img src="./html_info/TurtleSCAD3.png" width=300 height=300><br>
+The turtlebot has four main features. Two wheels that are controlled by stepper motors to move the turtlebot, a screen display and a component where a pen can be put in which can then be moved vertically by a servo. The turtlebot’s firmware uses an Arduino and also has a Bluetooth component  in order to receive and acknowledge commands from the PC.<br>
+<img src="./html_info/turtle_front.jpg" width=300 height=300><img src="./html_info/turtle_back.jpg" width=300 height=300> <br>
+The turtlebot has commands to do various actions. The movement commands have options to move in either millimetres or motor steps (with 4096 steps per rotation). Initially, the command options for moving forward, left, or right then later additional commands where added for curves.
+</p>
+
+</body>
+</html>

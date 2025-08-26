@@ -86,7 +86,7 @@ class Setup_Wizard_Calculator():
         self.increment = round((self.increment/5),1)
         #If done first set of increments make back button availableto restart the backlash process   
         if self.increment <125:
-            self.activate_back_button
+            self.activate_back_button()
         #If increment is less than one move onto next calibration (f is measured in steps which are integers)
         if self.increment<1:
             self.end_backlash()
@@ -139,7 +139,7 @@ class Setup_Wizard_Calculator():
         expected_diameter = self.settings.get("wheelL")
         #Actual diameter = percentage of expected line drawn*expected diameter
         #Round as turtlebot uses doubles so has a floating point threshold
-        actual_diameter = round((float(length)/300)*float(expected_diameter), 6)
+        actual_diameter = round((float(length)/300)*float(expected_diameter), 2)
         #Set values for wheel diameters
         self.port_manager.send_command("s2 "+str(actual_diameter))
         self.port_manager.send_command("s3 "+str(actual_diameter))
@@ -197,7 +197,7 @@ class Setup_Wizard_Calculator():
             #Expected*(Circumference of circle with axle as diameter - overlap)/Circumference of circle with axle as diameter
             #axle*(((axle*pi)-overlap)/(axle*pi))      
             #Simplifies to axle-(overlap/pi)
-            actual_axle = round(expected_axle-(avg_len/(pi)), 6)   
+            actual_axle = round(expected_axle-(avg_len/(pi)), 2)   
 
             #Update values for axle
             self.settings.update({"Axle": actual_axle})

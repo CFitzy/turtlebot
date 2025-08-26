@@ -1,0 +1,20 @@
+#--------4-START-------
+four_var = 15
+
+turtle.left(90)
+turtle.forward(2*four_var)
+turtle.down()
+turtle.right(180)
+turtle.forward(four_var)
+turtle.left(90)
+turtle.forward(four_var)
+turtle.up()
+turtle.left(90)
+turtle.forward(four_var)
+turtle.right(180)
+turtle.down()
+turtle.forward(2*four_var)
+turtle.up()
+turtle.left(90)
+turtle.forward(four_var)
+#---------4-END--------
