@@ -196,19 +196,18 @@ class Turtle_Simulation():
                             angle_left= angle_left+90
                         else:
                             curve_angles.append(angle_left)
-                    print(curve_angles)
                                                 
                     #For angles in the segment's angle list
                     for a in curve_angles:
                         #Calculate angle
-                        angle = (angle+((a/90)*45))%360
-                        
+                        angle = (angle+(90-(a/2)))%360
                         #Calculate arc length for segment (proportion of total arc length)
                         sector_arc = (a/curve_angle)*arc
                         #Calculate distance moved (chord length)
-                        distance = (180*sector_arc*sin(radians(a)))/(a*pi)
+                        distance = (360*sector_arc*sin(radians(a/2)))/(a*pi)
                         #Break line into vertical and horizontal components
                         self.turn_vector_into_components(angle, distance)
+                        
             #If a forward movement, break line into components for the angle the turtle is currently moving
             if line[0] == "F":
                 self.turn_vector_into_components(angle, line[1:])
@@ -226,10 +225,9 @@ class Turtle_Simulation():
             h_neg_scale= (h_offset-padding)/(abs(self.neg_horizontal))
             
         #If moved East
-        if self.pos_horizontal > self.canvas.winfo_width()-h_offset:
+        if self.pos_horizontal > 0:
             #Width of canvas -Turtle start position(-padding) divided by the distance moved East
             h_pos_scale= (self.canvas.winfo_width()-h_offset-padding)/(self.pos_horizontal)
-            
         #If moved South
         if self.neg_vertical <0:
             #Height of canvas -Turtle start position(-padding) divided by the distance moved South
@@ -239,11 +237,10 @@ class Turtle_Simulation():
         if self.pos_vertical >0:
             #Turtle start position(-padding) divided by the distance moved North
             v_pos_scale= (v_offset-padding)/(abs(self.pos_vertical))
-            print(v_pos_scale, (v_offset-padding), abs(self.pos_vertical))
         
         #New scale is set to the smallest scale required
         new_scale = min(h_neg_scale, h_pos_scale, v_neg_scale, v_pos_scale)
-        
+
         #If the newscale is smaller than the current scale, set it to the current scale
         if new_scale<self.scale:
             self.scale = new_scale
