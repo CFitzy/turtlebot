@@ -41,11 +41,11 @@ These Python files are:
 * turtle_simulation
 * user_turtle
 
-#### characters
+#### src/characters
 This folder includes the text files that contain code that can be inserted into the user's program
 
-#### graphics
+#### src/graphics
 This folder contains all the grpahics that are used by the application
 
-#### html_info
+#### src/html_info
 This folder contains the html file (information_page.html) that contians the information about the project to the user when requested through the application. It also contains any images used by this file.
