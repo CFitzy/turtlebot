@@ -4,7 +4,7 @@
 An application to control a virtual turtle and a turtlebot by having a user write their own Python code.
 The project consists of Python files and uses CustomTkinter and Tkinter to construct the UI elements.
 
-##Required installs
+## Required installs
 To run the code the following installs are required which can be done via the pip install command:
 * customtkinter -for the UI elements
 * tkhtmlview -for the HTML about page
@@ -12,12 +12,12 @@ To run the code the following installs are required which can be done via the pi
 
 Pillow also needs to be uninstalled
 
-##Directory structure
-###docs
+## Directory structure
+### docs
 This folder contains the pdf version pdf version of the final report.
 It also contains a user manual for using and developing the application and the possible commands that can be sent to the turtlebot.
 
-###src
+### src
 This folder contains the final versions of the code 
 
 
