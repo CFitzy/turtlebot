@@ -209,13 +209,14 @@ class Setup_Wizard_Calculator():
     
     #Save settings to the turtlebot's EEPROM
     def save(self):
+        #Use write_to_turtle rather than send_command as settings do not send back acknowledgements
         #Send wheel diameter configurations
-        self.port_manager.send_command("s2 "+str(self.settings.get("wheelL")))
-        self.port_manager.send_command("s3 "+str(self.settings.get("wheelR")))
+        self.port_manager.write_to_turtle("s2 "+str(self.settings.get("wheelL")))
+        self.port_manager.write_to_turtle("s3 "+str(self.settings.get("wheelR")))
         #Send axle length configuration
-        self.port_manager.send_command("s4 "+str(self.settings.get("Axle")))
+        self.port_manager.write_to_turtle("s4 "+str(self.settings.get("Axle")))
         #Send backlash configurations
-        self.port_manager.send_command("s7 "+str(self.settings.get("BacklashL")))
-        self.port_manager.send_command("s8 "+str(self.settings.get("BacklashR")))               
+        self.port_manager.write_to_turtle("s7 "+str(self.settings.get("BacklashL")))
+        self.port_manager.write_to_turtle("s8 "+str(self.settings.get("BacklashR")))               
         #Save the configurations to the EEPROM
-        self.port_manager.send_command("save")
+        self.port_manager.write_to_turtle("save")
