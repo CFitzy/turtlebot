@@ -58,9 +58,9 @@ class Setup_Wizard_Calculator():
         #Value currently being moved forwards by per increment (in steps)
         self.increment = 125
         # Slow down and set current backlash to zero
-        self.port_manager.send_command("s1 4000")  
-        self.port_manager.send_command("s7 0")
-        self.port_manager.send_command("s8 0")   
+        self.port_manager.write_to_turtle("s1 4000")  
+        self.port_manager.write_to_turtle("s7 0")
+        self.port_manager.write_to_turtle("s8 0")   
         #Move turtlebot backwards
         self.port_manager.send_command("f -"+str(self.max))
         #Move turtlebot forwards
@@ -107,7 +107,7 @@ class Setup_Wizard_Calculator():
     def end_backlash(self):
         #Turn motors off and speed up
         self.port_manager.send_command("o")
-        self.port_manager.send_command("s1 1100")   
+        self.port_manager.write_to_turtle("s1 1100")   
         #Set values for backlash
         self.settings.update({"BacklashL": self.max})
         self.settings.update({"BacklashR": self.max})
@@ -120,7 +120,7 @@ class Setup_Wizard_Calculator():
     def draw_for_diameter(self):
         #Wheel Diameter simple calibration test 
         #Slow down
-        self.port_manager.send_command("s1 4000")
+        self.port_manager.write_to_turtle("s1 4000")
         #Take up backlash by moving forward a 1cm
         self.port_manager.send_command("F 10")
         #Lower pen
@@ -130,7 +130,7 @@ class Setup_Wizard_Calculator():
         #Lift pen
         self.port_manager.send_command("U")
         # Reset motor speed and turn motors off
-        self.port_manager.send_command("s1 1100")
+        self.port_manager.write_to_turtle("s1 1100")
         self.port_manager.send_command("o")
         
     #Calculate wheel diametera based upon the length of the line drawn and the the expected length   
@@ -141,8 +141,8 @@ class Setup_Wizard_Calculator():
         #Round as turtlebot uses doubles so has a floating point threshold
         actual_diameter = round((float(length)/300)*float(expected_diameter), 3)
         #Set values for wheel diameters
-        self.port_manager.send_command("s2 "+str(actual_diameter))
-        self.port_manager.send_command("s3 "+str(actual_diameter))
+        self.port_manager.write_to_turtle("s2 "+str(actual_diameter))
+        self.port_manager.write_to_turtle("s3 "+str(actual_diameter))
         self.settings.update({"wheelL": actual_diameter})
         self.settings.update({"wheelR": actual_diameter})
 
@@ -151,7 +151,7 @@ class Setup_Wizard_Calculator():
     #Draw two circles to calibrate axle length using one wheel per circle, if the wheel is calibrated any error will be due to the wheel spacing    
     def draw_for_axle(self):
         #Slow down
-        self.port_manager.send_command("s1 3000")
+        self.port_manager.write_to_turtle("s1 3000")
         #Lift pen in case down
         self.port_manager.send_command("U")
         #Take up backlash in left wheel
@@ -176,7 +176,7 @@ class Setup_Wizard_Calculator():
         self.port_manager.send_command("U")
         self.port_manager.send_command("F 30")
         #Turn off motors and set the speed back to normal
-        self.port_manager.send_command("s1 1100")
+        self.port_manager.write_to_turtle("s1 1100")
         self.port_manager.send_command("o")
         
     #Calculate axle length based upon the overlap or gap given and the the expected axle length
@@ -201,7 +201,7 @@ class Setup_Wizard_Calculator():
 
             #Update values for axle
             self.settings.update({"Axle": actual_axle})
-            self.port_manager.send_command("s4 "+str(actual_axle))
+            self.port_manager.write_to_turtle("s4 "+str(actual_axle))
             #Return that the value did not match
             return False
             
