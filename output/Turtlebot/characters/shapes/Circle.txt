@@ -1,0 +1,6 @@
+#--------CIRCLE-START-------
+circle_var = 314
+turtle.down()
+turtle.curve(circle_var, 360)
+turtle.up()
+#---------CIRCLE-END--------

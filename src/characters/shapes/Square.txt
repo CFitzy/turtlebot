@@ -1,0 +1,10 @@
+#--------SQUARE-START-------
+square_var = 100
+
+turtle.down()
+for i in range(4):
+	turtle.forward(square_var)
+	turtle.left(90)
+turtle.up()
+#---------SQUARE-END--------
+

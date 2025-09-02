@@ -1,0 +1,11 @@
+#--------TRIANGLE-START-------
+triangle_var = 110
+
+turtle.down()
+for i in range(3):
+	turtle.forward(triangle_var)
+	turtle.left(120)
+turtle.up()
+#---------TRIANGLE-END--------
+
+
